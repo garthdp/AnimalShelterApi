@@ -1,0 +1,6 @@
+@SPCAAPI_HostAddress = http://localhost:5192
+
+GET {{SPCAAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
