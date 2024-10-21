@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Google.Cloud.Firestore;
 using Firebase.Storage;
+using SPCAAPI.Models;
 
 namespace SPCAAPI.Controllers
 {
@@ -18,7 +19,7 @@ namespace SPCAAPI.Controllers
             return db;
         }
         [HttpPost]
-        public async Task<IActionResult> Post(string name, string breed, string health, string weight, string adoptionStatus, IFormFile image)
+        public async Task<IActionResult> Post([FromForm] Animal animal)
         {
             /*
             Code Attribution
@@ -29,11 +30,11 @@ namespace SPCAAPI.Controllers
             */
 
             string imageUrl = null;
-            if (image != null && image.Length > 0)
+            if (animal.Image != null && animal.Image.Length > 0)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(animal.Image.FileName);
 
-                var stream = image.OpenReadStream();
+                var stream = animal.Image.OpenReadStream();
                 var firebaseStorage = new FirebaseStorage(
                     "wilspca.appspot.com");
 
@@ -50,11 +51,11 @@ namespace SPCAAPI.Controllers
 
             Dictionary<string, object> data = new Dictionary<string, object>()
             {
-                { "name", name },
-                { "breed", breed },
-                { "health", health },
-                { "weight", weight },
-                { "adoptionStatus", adoptionStatus },
+                { "name", animal.Name },
+                { "breed", animal.Breed },
+                { "health", animal.Health },
+                { "weight", animal.Weight },
+                { "adoptionStatus", animal.AdoptionStatus },
                 { "imageUrl", imageUrl } 
             };
 
@@ -86,6 +87,7 @@ namespace SPCAAPI.Controllers
             foreach (DocumentSnapshot docsnap in snapshot)
             {
                 Dictionary<string, object> entry = docsnap.ConvertTo<Dictionary<string, object>>();
+                entry.Add("petId", docsnap.Reference.Id.ToString());
 
                 if (docsnap.Exists)
                 {
@@ -103,16 +105,41 @@ namespace SPCAAPI.Controllers
 
             if (snapshot.Exists)
             {
+                string imageUrl = snapshot.GetValue<string>("imageUrl");
+
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    // format the string to get to the firebase folder
+                    var imagePath = imageUrl.Substring(imageUrl.IndexOf("o/") + 2);
+                    imagePath = imagePath.Substring(0, imagePath.IndexOf("?alt="));
+
+                    // replace %2f in string to / to make sure formating is correct
+                    imagePath = imagePath.Replace("%2F", "/");
+
+                    var firebaseStorage = new FirebaseStorage("wilspca.appspot.com");
+                    try
+                    {
+                        await firebaseStorage
+                            .Child(imagePath)
+                            .DeleteAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(new { message = $"Error deleting image: {ex.Message}, {imagePath}" });
+                    }
+                }
+
+                // Delete the document from Firestore
                 await docref.DeleteAsync();
+                return Ok(new { message = "Animal and associated image deleted" });
             }
             else
             {
                 return NotFound(new { message = "Animal not found" });
             }
-            return Ok(new { message = "Animal deleted" });
         }
         [HttpPatch]
-        public async Task<IActionResult> Patch(string id, string name = null, string breed = null, string health = null, string weight = null, string adoptionStatus = null)
+        public async Task<IActionResult> Patch(string id, [FromForm] Animal animal)
         {
             DocumentReference docRef = db.Collection("Animals").Document(id);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
@@ -124,25 +151,65 @@ namespace SPCAAPI.Controllers
 
             Dictionary<string, object> updates = new Dictionary<string, object>();
 
-            if (!string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(animal.Name))
             {
-                updates["name"] = name;
+                updates["name"] = animal.Name;
             }
-            if (!string.IsNullOrEmpty(breed))
+            if (!string.IsNullOrEmpty(animal.Breed))
             {
-                updates["breed"] = breed;
+                updates["breed"] = animal.Breed;
             }
-            if (!string.IsNullOrEmpty(health))
+            if (!string.IsNullOrEmpty(animal.Health))
             {
-                updates["health"] = health;
+                updates["health"] = animal.Health;
             }
-            if (!string.IsNullOrEmpty(weight))
+            if (!string.IsNullOrEmpty(animal.Weight))
             {
-                updates["weight"] = weight;
+                updates["weight"] = animal.Weight;
             }
-            if (!string.IsNullOrEmpty(adoptionStatus))
+            if (!string.IsNullOrEmpty(animal.AdoptionStatus))
             {
-                updates["adoptionStatus"] = adoptionStatus;
+                updates["adoptionStatus"] = animal.AdoptionStatus;
+            }
+            string newImageUrl = null;
+            if (animal.Image != null && animal.Image.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(animal.Image.FileName);
+
+                var stream = animal.Image.OpenReadStream();
+                var firebaseStorage = new FirebaseStorage(
+                    "wilspca.appspot.com");
+
+                var uploadTask = firebaseStorage
+                    .Child("animal_images")
+                    .Child(fileName)
+                    .PutAsync(stream);
+
+                newImageUrl = await uploadTask;
+                updates["imageUrl"] = newImageUrl;
+
+                string oldImageUrl = snapshot.GetValue<string>("imageUrl");
+
+                if (!string.IsNullOrEmpty(oldImageUrl))
+                {
+                    // format the string to get to the firebase folder
+                    var imagePath = oldImageUrl.Substring(oldImageUrl.IndexOf("o/") + 2);
+                    imagePath = imagePath.Substring(0, imagePath.IndexOf("?alt="));
+
+                    // replace %2f in string to / to make sure formating is correct
+                    imagePath = imagePath.Replace("%2F", "/");
+
+                    try
+                    {
+                        await firebaseStorage
+                            .Child(imagePath)
+                            .DeleteAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(new { message = $"Error deleting image: {ex.Message}, {imagePath}" });
+                    }
+                }
             }
 
             if (updates.Count > 0)
