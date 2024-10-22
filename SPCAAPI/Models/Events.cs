@@ -2,9 +2,9 @@
 {
     public class Events
     {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Date { get; set; }
+        public string eventName { get; set; }
+        public string eventDescription { get; set; }
+        public string eventDate { get; set; }
     }
 
 }

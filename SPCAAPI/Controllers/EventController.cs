@@ -31,9 +31,9 @@ namespace SPCAAPI.Controllers
 
                 Dictionary<string, object> data = new Dictionary<string, object>
                 {
-                    { "eventName", newEvent.Title },
-                    { "eventDescription", newEvent.Description },
-                    { "eventDate", newEvent.Date },
+                    { "eventName", newEvent.eventName },
+                    { "eventDescription", newEvent.eventDescription },
+                    { "eventDate", newEvent.eventDate },
                 };
 
                 await docRef.SetAsync(data);
@@ -109,9 +109,9 @@ namespace SPCAAPI.Controllers
 
                 Dictionary<string, object> updatedData = new Dictionary<string, object>
                 {
-                    { "eventName", updatedEvent.Title },
-                    { "eventDescription", updatedEvent.Description },
-                    { "eventDate", updatedEvent.Date },
+                    { "eventName", updatedEvent.eventName },
+                    { "eventDescription", updatedEvent.eventDescription },
+                    { "eventDate", updatedEvent.eventDate },
                 };
 
                 await docRef.UpdateAsync(updatedData);
