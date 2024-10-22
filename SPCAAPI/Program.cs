@@ -13,10 +13,10 @@ namespace SPCAAPI
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowSpecificOrigin",
-                    builder => builder.WithOrigins("https://localhost:7266")
-                                      .AllowAnyMethod()
-                                      .AllowAnyHeader());
+                options.AddPolicy("AllowAll",
+                               builder => builder.AllowAnyOrigin()  // Allow any origin
+                              .AllowAnyMethod()  // Allow any HTTP method (GET, POST, etc.)
+                              .AllowAnyHeader());
             });
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -25,7 +25,7 @@ namespace SPCAAPI
 
             var app = builder.Build();
 
-            app.UseCors("AllowSpecificOrigin");
+            app.UseCors("AllowAll");
 
             app.UseSwagger();
             app.UseSwaggerUI();

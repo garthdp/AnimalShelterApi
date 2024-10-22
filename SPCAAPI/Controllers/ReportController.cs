@@ -18,48 +18,21 @@ namespace SPCAAPI.Controllers
         {
             try
             {
-                // Check if the report is valid
-                if (report == null)
-                {
-                    return BadRequest(new { message = "Invalid report data" });
-                }
-
-                // If the report has an image, upload it to Firebase Storage
-                string imageUrl = null;
-                if (Request.Form.Files.Count > 0)
-                {
-                    var file = Request.Form.Files[0];
-                    if (file.Length > 0)
-                    {
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        var stream = file.OpenReadStream();
-                        var firebaseStorage = new FirebaseStorage("wilspca.appspot.com");
-
-                        var uploadTask = firebaseStorage
-                            .Child("report_images") // Store images in a folder for reports
-                            .Child(fileName)
-                            .PutAsync(stream);
-
-                        imageUrl = await uploadTask;
-                    }
-                }
-
                 // Add the report to the Firestore collection
                 CollectionReference coll = db.Collection("Reports");
                 DocumentReference docRef = coll.Document();
 
                 Dictionary<string, object> data = new Dictionary<string, object>
-        {
-            { "location", report.Location },
-            { "description", report.Description },
-            { "contactInfo", report.ContactInfo },
-            { "status", report.Status },
-            { "imageUrl", imageUrl }
-        };
+                {
+                    { "location", report.Location },
+                    { "description", report.Description },
+                    { "contactInfo", report.ContactInfo },
+                    { "status", report.Status },
+                };
 
                 await docRef.SetAsync(data);
 
-                return Ok(new { message = "Report submitted successfully", imageUrl });
+                return Ok(new { message = "Report submitted successfully"});
             }
             catch (Exception ex)
             {
@@ -104,28 +77,6 @@ namespace SPCAAPI.Controllers
 
             if (snapshot.Exists)
             {
-                string imageUrl = snapshot.GetValue<string>("imageUrl");
-
-                if (!string.IsNullOrEmpty(imageUrl))
-                {
-                    // Format the string to get to the Firebase folder
-                    var imagePath = imageUrl.Substring(imageUrl.IndexOf("o/") + 2);
-                    imagePath = imagePath.Substring(0, imagePath.IndexOf("?alt="));
-                    imagePath = imagePath.Replace("%2F", "/");
-
-                    var firebaseStorage = new FirebaseStorage("wilspca.appspot.com");
-                    try
-                    {
-                        await firebaseStorage
-                            .Child(imagePath)
-                            .DeleteAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(new { message = $"Error deleting image: {ex.Message}" });
-                    }
-                }
-
                 await docRef.DeleteAsync();
                 return Ok(new { message = "Report and associated image deleted" });
             }
