@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SPCAAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+87f1375b1a56402ef4171b30faec978799296c50")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e840986b9b9e2d08a6d885a5b1d929006e6eef8")]
 [assembly: System.Reflection.AssemblyProductAttribute("SPCAAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SPCAAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
