@@ -113,6 +113,105 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "SPCAAPI.Controllers.EventController",
+    "Method": "AddEvent",
+    "RelativePath": "api/events/AddEvent",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Title",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Date",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SPCAAPI.Controllers.EventController",
+    "Method": "DeleteEvent",
+    "RelativePath": "api/events/DeleteEvent/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SPCAAPI.Controllers.EventController",
+    "Method": "GetEvent",
+    "RelativePath": "api/events/GetEvent/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SPCAAPI.Controllers.EventController",
+    "Method": "GetEvents",
+    "RelativePath": "api/events/GetEvents",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SPCAAPI.Controllers.EventController",
+    "Method": "UpdateEvent",
+    "RelativePath": "api/events/UpdateEvent/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "Title",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Date",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "SPCAAPI.Controllers.ReportController",
     "Method": "Post",
     "RelativePath": "api/Report",
@@ -120,11 +219,6 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [
-      {
-        "Name": "Id",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
       {
         "Name": "Location",
         "Type": "System.String",
@@ -143,11 +237,6 @@
       {
         "Name": "Status",
         "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "ReportDate",
-        "Type": "System.DateTime",
         "IsRequired": false
       }
     ],

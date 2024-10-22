@@ -13,44 +13,58 @@ namespace SPCAAPI.Controllers
 
         // Method to add a new report to the Firestore database
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Post([FromForm] Report report)
         {
-            // If the report has an image, upload it to Firebase Storage
-            string imageUrl = null;
-            if (Request.Form.Files.Count > 0)
+            try
             {
-                var file = Request.Form.Files[0];
-                if (file.Length > 0)
+                // Check if the report is valid
+                if (report == null)
                 {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    var stream = file.OpenReadStream();
-                    var firebaseStorage = new FirebaseStorage("wilspca.appspot.com");
-
-                    var uploadTask = firebaseStorage
-                        .Child("report_images") // Store images in a folder for reports
-                        .Child(fileName)
-                        .PutAsync(stream);
-
-                    imageUrl = await uploadTask;
+                    return BadRequest(new { message = "Invalid report data" });
                 }
+
+                // If the report has an image, upload it to Firebase Storage
+                string imageUrl = null;
+                if (Request.Form.Files.Count > 0)
+                {
+                    var file = Request.Form.Files[0];
+                    if (file.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var stream = file.OpenReadStream();
+                        var firebaseStorage = new FirebaseStorage("wilspca.appspot.com");
+
+                        var uploadTask = firebaseStorage
+                            .Child("report_images") // Store images in a folder for reports
+                            .Child(fileName)
+                            .PutAsync(stream);
+
+                        imageUrl = await uploadTask;
+                    }
+                }
+
+                // Add the report to the Firestore collection
+                CollectionReference coll = db.Collection("Reports");
+                DocumentReference docRef = coll.Document();
+
+                Dictionary<string, object> data = new Dictionary<string, object>
+        {
+            { "location", report.Location },
+            { "description", report.Description },
+            { "contactInfo", report.ContactInfo },
+            { "status", report.Status },
+            { "imageUrl", imageUrl }
+        };
+
+                await docRef.SetAsync(data);
+
+                return Ok(new { message = "Report submitted successfully", imageUrl });
             }
-
-            // Add the report to the Firestore collection
-            CollectionReference coll = db.Collection("Reports");
-            DocumentReference docRef = coll.Document();
-
-            Dictionary<string, object> data = new Dictionary<string, object>()
+            catch (Exception ex)
             {
-                { "location", report.Location },
-                { "description", report.Description },
-                { "contactInfo", report.ContactInfo },
-                { "status", report.Status },
-                { "imageUrl", imageUrl }
-            };
-
-            await docRef.SetAsync(data);
-
-            return Ok(new { message = "Report submitted successfully", imageUrl });
+                return StatusCode(500, new { message = $"Error processing the request: {ex.Message}" });
+            }
         }
 
         // Method to get all reports from Firestore
