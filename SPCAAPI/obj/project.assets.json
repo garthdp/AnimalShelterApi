@@ -6663,23 +6663,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\lab_services_student\\.nuget\\packages\\": {},
+    "C:\\Users\\User\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\lab_services_student\\Source\\Repos\\SPCAPI'S\\SPCAAPI\\SPCAAPI.csproj",
+      "projectUniqueName": "C:\\Users\\User\\OneDrive - ADvTECH Ltd\\Year 3\\Semester 2\\wil\\SPCAAPI\\SPCAAPI.csproj",
       "projectName": "SPCAAPI",
-      "projectPath": "C:\\Users\\lab_services_student\\Source\\Repos\\SPCAPI'S\\SPCAAPI\\SPCAAPI.csproj",
-      "packagesPath": "C:\\Users\\lab_services_student\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\lab_services_student\\Source\\Repos\\SPCAPI'S\\SPCAAPI\\obj\\",
+      "projectPath": "C:\\Users\\User\\OneDrive - ADvTECH Ltd\\Year 3\\Semester 2\\wil\\SPCAAPI\\SPCAAPI.csproj",
+      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\User\\OneDrive - ADvTECH Ltd\\Year 3\\Semester 2\\wil\\SPCAAPI\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\lab_services_student\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -6756,7 +6756,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
