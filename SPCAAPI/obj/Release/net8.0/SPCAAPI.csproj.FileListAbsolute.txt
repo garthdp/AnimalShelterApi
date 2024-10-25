@@ -178,3 +178,5 @@ C:\Users\lab_services_student\Source\Repos\SPCAPI'S\SPCAAPI\obj\Release\net8.0\r
 C:\Users\lab_services_student\Source\Repos\SPCAPI'S\SPCAAPI\obj\Release\net8.0\SPCAAPI.pdb
 C:\Users\lab_services_student\Source\Repos\SPCAPI'S\SPCAAPI\obj\Release\net8.0\SPCAAPI.genruntimeconfig.cache
 C:\Users\lab_services_student\Source\Repos\SPCAPI'S\SPCAAPI\obj\Release\net8.0\ref\SPCAAPI.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\DevOne.Security.Cryptography.BCrypt.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\BCrypt.Net-Next.dll

@@ -1,6 +1,7 @@
 ﻿using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Mvc;
 using SPCAAPI.Models;
+using BCrypt.Net;
 
 namespace SPCAAPI.Controllers
 {
@@ -28,6 +29,8 @@ namespace SPCAAPI.Controllers
                     return BadRequest(new { message = "Error, email in use." });
                 }
 
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
                 // Add the user to the Firestore collection
                 CollectionReference coll = db.Collection("Users");
                 DocumentReference docRef = coll.Document(user.Email);
@@ -35,7 +38,7 @@ namespace SPCAAPI.Controllers
                 Dictionary<string, object> data = new Dictionary<string, object>
                 {
                     { "email", user.Email },
-                    { "password", user.Password },
+                    { "password", hashedPassword },
                     { "usertype", "User" },
                 };
 
@@ -73,7 +76,8 @@ namespace SPCAAPI.Controllers
             if (snapshot.Exists)
             {
                 Dictionary<string, object> userInfo = snapshot.ConvertTo<Dictionary<string, object>>();
-                if (userInfo["password"].ToString() == password)
+                string storedHashedPassword = userInfo["password"].ToString();
+                if (BCrypt.Net.BCrypt.Verify(password, storedHashedPassword))
                 {
                     return Ok(userInfo);
                 }
