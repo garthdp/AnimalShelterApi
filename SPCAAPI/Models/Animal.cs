@@ -7,6 +7,7 @@
         public string? Health { get; set; }
         public string? Weight { get; set; }
         public string? AdoptionStatus { get; set; }
+        public string? AnimalType { get; set; }
         public IFormFile? Image { get; set; }
     }
 }

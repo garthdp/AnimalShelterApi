@@ -55,6 +55,7 @@ namespace SPCAAPI.Controllers
                 { "breed", animal.Breed },
                 { "health", animal.Health },
                 { "weight", animal.Weight },
+                { "animalType", animal.AnimalType },
                 { "adoptionStatus", animal.AdoptionStatus },
                 { "imageUrl", imageUrl } 
             };
@@ -166,6 +167,10 @@ namespace SPCAAPI.Controllers
             if (!string.IsNullOrEmpty(animal.Weight))
             {
                 updates["weight"] = animal.Weight;
+            }
+            if (!string.IsNullOrEmpty(animal.AnimalType))
+            {
+                updates["animalType"] = animal.AnimalType;
             }
             if (!string.IsNullOrEmpty(animal.AdoptionStatus))
             {
