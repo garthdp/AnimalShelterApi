@@ -1,13 +1,23 @@
-﻿namespace SPCAAPI.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace SPCAAPI.Models;
+
+public partial class Animal
 {
-    public class Animal
-    {
-        public string? Name { get; set; }
-        public string? Breed { get; set; }
-        public string? Health { get; set; }
-        public string? Weight { get; set; }
-        public string? AdoptionStatus { get; set; }
-        public string? AnimalType { get; set; }
-        public IFormFile? Image { get; set; }
-    }
+    public int AnimalId { get; set; }
+
+    public string AdoptionStatus { get; set; } = null!;
+
+    public string AnimalType { get; set; } = null!;
+
+    public string Breed { get; set; } = null!;
+
+    public string Health { get; set; } = null!;
+
+    public string ImageUrl { get; set; } = null!;
+
+    public string Name { get; set; } = null!;
+
+    public int Weight { get; set; }
 }

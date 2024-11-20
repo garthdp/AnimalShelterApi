@@ -1,11 +1,12 @@
 {
   "Version": 1,
-  "Hash": "Wjsmbq77M/ZYNyip945CaH80bzlt3Vdrj1IqP6GQdIo=",
+  "Hash": "5V49TAhb7Z8IGxNiqB5bdYauMwQWaA5/Ve2IDZA8YhQ=",
   "Source": "SPCAAPI",
   "BasePath": "_content/SPCAAPI",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }

@@ -1,12 +1,17 @@
-﻿namespace SPCAAPI.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace SPCAAPI.Models;
+
+public partial class Report
 {
-    public class Report
-    {
-     
-        public string Location { get; set; }
-        public string Description { get; set; }
-        public string ContactInfo { get; set; } 
-        public string Status { get; set; } 
-        
-    }
+    public int ReportId { get; set; }
+
+    public string ContactInfo { get; set; } = null!;
+
+    public string Description { get; set; } = null!;
+
+    public string Location { get; set; } = null!;
+
+    public string Status { get; set; } = null!;
 }

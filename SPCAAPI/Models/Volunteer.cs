@@ -1,14 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
 
-namespace SPCAAPI.Models
+namespace SPCAAPI.Models;
+
+public partial class Volunteer
 {
-    public class Volunteer
-    {
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public string VolunteerDate { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Email { get; set; }
+    public int VolunteerId { get; set; }
 
-    }
+    public string Email { get; set; } = null!;
+
+    public string PhoneNumber { get; set; } = null!;
+
+    public string Surname { get; set; } = null!;
+
+    public string VounteerDate { get; set; } = null!;
 }
