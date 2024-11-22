@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPCAAPI", "SPCAAPI.csproj", "{309FF5D8-ED75-46E3-86D3-36E949B929E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiTesting", "..\ApiTesting\ApiTesting.csproj", "{0282D9B9-0C20-4ACF-8251-40E8324F7831}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{309FF5D8-ED75-46E3-86D3-36E949B929E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{309FF5D8-ED75-46E3-86D3-36E949B929E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{309FF5D8-ED75-46E3-86D3-36E949B929E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0282D9B9-0C20-4ACF-8251-40E8324F7831}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0282D9B9-0C20-4ACF-8251-40E8324F7831}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0282D9B9-0C20-4ACF-8251-40E8324F7831}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0282D9B9-0C20-4ACF-8251-40E8324F7831}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
