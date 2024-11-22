@@ -2,6 +2,7 @@
 using Google.Cloud.Firestore;
 using Firebase.Storage;
 using SPCAAPI.Models;
+using SPCAAPI.Data;
 
 namespace SPCAAPI.Controllers
 {
@@ -10,27 +11,20 @@ namespace SPCAAPI.Controllers
     public class ReportController : Controller
     {
         public static FirestoreDb db = AnimalController.establishCon();
+        WilDbContext context = new WilDbContext();
 
-        // Method to add a new report to the Firestore database
-        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] Report report)
         {
             try
             {
-                // Add the report to the Firestore collection
-                CollectionReference coll = db.Collection("Reports");
-                DocumentReference docRef = coll.Document();
-
-                Dictionary<string, object> data = new Dictionary<string, object>
+                if (report == null)
                 {
-                    { "location", report.Location },
-                    { "description", report.Description },
-                    { "contactInfo", report.ContactInfo },
-                    { "status", report.Status },
-                };
+                    return BadRequest(new { message = "Incorrect report format." });
+                }
 
-                await docRef.SetAsync(data);
+                context.Reports.Add(report);
+                context.SaveChanges();
 
                 return Ok(new { message = "Report submitted successfully"});
             }
@@ -44,25 +38,24 @@ namespace SPCAAPI.Controllers
         [HttpGet("GetReports")]
         public async Task<IActionResult> GetReports()
         {
-            Query qRef = db.Collection("Reports");
-            QuerySnapshot snapshot = await qRef.GetSnapshotAsync();
+            var reports = context.Reports.ToList();
 
-            if (snapshot == null || snapshot.Count == 0)
+            if (reports == null || reports.Count == 0)
             {
                 return NotFound(new { message = "No reports found." });
             }
 
-            List<Dictionary<string, object>> reports = new List<Dictionary<string, object>>();
+            return Ok(reports);
+        }
 
-            foreach (DocumentSnapshot docsnap in snapshot)
+        [HttpGet("UserReports/{email}")]
+        public async Task<IActionResult> UserReports(string email)
+        {
+            var reports = context.Reports.Where(x => x.ContactInfo == email).ToList();
+
+            if (reports == null || reports.Count == 0)
             {
-                Dictionary<string, object> entry = docsnap.ConvertTo<Dictionary<string, object>>();
-                entry.Add("reportId", docsnap.Reference.Id.ToString());
-
-                if (docsnap.Exists)
-                {
-                    reports.Add(entry);
-                }
+                return NotFound(new { message = "No reports found." });
             }
 
             return Ok(reports);
@@ -70,15 +63,15 @@ namespace SPCAAPI.Controllers
 
         // Method to delete a report from Firestore
         [HttpDelete]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int id)
         {
-            DocumentReference docRef = db.Collection("Reports").Document(id);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            var report = context.Reports.Where(x => x.ReportId == id).FirstOrDefault();
 
-            if (snapshot.Exists)
+            if (report != null)
             {
-                await docRef.DeleteAsync();
-                return Ok(new { message = "Report and associated image deleted" });
+                context.Reports.Remove(report);
+                context.SaveChanges();
+                return Ok(new { message = "Report deleted" });
             }
             else
             {

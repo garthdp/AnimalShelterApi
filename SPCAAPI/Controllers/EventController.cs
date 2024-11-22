@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
+using SPCAAPI.Data;
 
 namespace SPCAAPI.Controllers
 {
@@ -13,6 +14,7 @@ namespace SPCAAPI.Controllers
     public class EventController : Controller
     {
         public static FirestoreDb db = AnimalController.establishCon(); // Adjust this for your Firestore initialization
+        public WilDbContext context = new WilDbContext();
 
         // Method to add a new event to Firestore
         [HttpPost("AddEvent")]
@@ -25,18 +27,13 @@ namespace SPCAAPI.Controllers
                     return BadRequest(new { message = "Invalid event data" });
                 }
 
-                // Add the event to the Firestore collection
-                CollectionReference coll = db.Collection("Events");
-                DocumentReference docRef = coll.Document();
+                Event addEvent = new Event();
+                addEvent.EventName = newEvent.eventName;
+                addEvent.EventDate = newEvent.eventDate;
+                addEvent.EventDescription = newEvent.eventDescription;
 
-                Dictionary<string, object> data = new Dictionary<string, object>
-                {
-                    { "eventName", newEvent.eventName },
-                    { "eventDescription", newEvent.eventDescription },
-                    { "eventDate", newEvent.eventDate },
-                };
-
-                await docRef.SetAsync(data);
+                context.Events.Add(addEvent);
+                context.SaveChanges();
 
                 return Ok(new { message = "Event added successfully" });
             }
@@ -46,46 +43,30 @@ namespace SPCAAPI.Controllers
             }
         }
 
-        // Method to get all events from Firestore
+        // Method to get all events from database
         [HttpGet("GetEvents")]
         public async Task<IActionResult> GetEvents()
         {
-            Query qRef = db.Collection("Events");
-            QuerySnapshot snapshot = await qRef.GetSnapshotAsync();
 
-            if (snapshot == null || snapshot.Count == 0)
+            var FindEvents = context.Events.ToList();
+
+            if (FindEvents == null || FindEvents.Count == 0)
             {
                 return NotFound(new { message = "No events found." });
             }
 
-            List<Dictionary<string, object>> events = new List<Dictionary<string, object>>();
-
-            foreach (DocumentSnapshot docsnap in snapshot)
-            {
-                Dictionary<string, object> entry = docsnap.ConvertTo<Dictionary<string, object>>();
-                entry.Add("eventId", docsnap.Reference.Id.ToString());
-
-                if (docsnap.Exists)
-                {
-                    events.Add(entry);
-                }
-            }
-
-            return Ok(events);
+            return Ok(FindEvents);
         }
 
         // Method to get a specific event by ID from Firestore
         [HttpGet("GetEvent/{id}")]
-        public async Task<IActionResult> GetEvent(string id)
+        public async Task<IActionResult> GetEvent(int id)
         {
-            DocumentReference docRef = db.Collection("Events").Document(id);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            var ev = context.Events.Where(x => x.EventId == id).FirstOrDefault();
 
-            if (snapshot.Exists)
+            if (ev != null)
             {
-                Dictionary<string, object> eventEntry = snapshot.ConvertTo<Dictionary<string, object>>();
-                eventEntry.Add("eventId", snapshot.Reference.Id.ToString());
-                return Ok(eventEntry);
+                return Ok(ev);
             }
             else
             {
@@ -95,26 +76,23 @@ namespace SPCAAPI.Controllers
 
         // Method to update an event
         [HttpPut("UpdateEvent/{id}")]
-        public async Task<IActionResult> UpdateEvent(string id, [FromForm] Events updatedEvent)
+        public async Task<IActionResult> UpdateEvent(int id, [FromForm] Events updatedEvent)
         {
             try
             {
-                DocumentReference docRef = db.Collection("Events").Document(id);
-                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                var ev = context.Events.Where(x => x.EventId == id).FirstOrDefault();
 
-                if (!snapshot.Exists)
+                if (ev == null)
                 {
                     return NotFound(new { message = "Event not found" });
                 }
 
-                Dictionary<string, object> updatedData = new Dictionary<string, object>
-                {
-                    { "eventName", updatedEvent.eventName },
-                    { "eventDescription", updatedEvent.eventDescription },
-                    { "eventDate", updatedEvent.eventDate },
-                };
+                ev.EventDate = updatedEvent.eventDate;
+                ev.EventDescription = updatedEvent.eventDescription;
+                ev.EventName = updatedEvent.eventName;
+                context.Events.Update(ev);
+                context.SaveChanges();
 
-                await docRef.UpdateAsync(updatedData);
                 return Ok(new { message = "Event updated successfully" });
             }
             catch (Exception ex)
@@ -125,19 +103,20 @@ namespace SPCAAPI.Controllers
 
         // Method to delete an event
         [HttpDelete("DeleteEvent/{id}")]
-        public async Task<IActionResult> DeleteEvent(string id)
+        public async Task<IActionResult> DeleteEvent(int id)
         {
             try
             {
-                DocumentReference docRef = db.Collection("Events").Document(id);
-                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                var ev = context.Events.Where(x => x.EventId == id).FirstOrDefault();
 
-                if (!snapshot.Exists)
+                if (ev == null)
                 {
                     return NotFound(new { message = "Event not found" });
                 }
 
-                await docRef.DeleteAsync();
+                context.Events.Remove(ev);
+                context.SaveChanges();
+
                 return Ok(new { message = "Event deleted successfully" });
             }
             catch (Exception ex)

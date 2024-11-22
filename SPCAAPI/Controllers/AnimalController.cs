@@ -29,22 +29,7 @@ namespace SPCAAPI.Controllers
             Usage: Used to understand how to upload files to Firebase Storage using .NET Core
             */
 
-            string imageUrl = null;
-            if (animal.Image != null && animal.Image.Length > 0)
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(animal.Image.FileName);
-
-                var stream = animal.Image.OpenReadStream();
-                var firebaseStorage = new FirebaseStorage(
-                    "wilspca.appspot.com");
-
-                var uploadTask = firebaseStorage
-                    .Child("animal_images") 
-                    .Child(fileName)
-                    .PutAsync(stream);
-
-                imageUrl = await uploadTask;
-            }
+            
 
             CollectionReference coll = db.Collection("Animals");
             DocumentReference docRef = coll.Document();
@@ -56,13 +41,12 @@ namespace SPCAAPI.Controllers
                 { "health", animal.Health },
                 { "weight", animal.Weight },
                 { "animalType", animal.AnimalType },
-                { "adoptionStatus", animal.AdoptionStatus },
-                { "imageUrl", imageUrl } 
+                { "adoptionStatus", animal.AdoptionStatus }
             };
 
             await docRef.SetAsync(data);
 
-            return Ok(new { message = "Added animal", imageUrl });
+            return Ok(new { message = "Added animal"});
         }
 
         [HttpGet("GetAnimals")]
@@ -164,7 +148,7 @@ namespace SPCAAPI.Controllers
             {
                 updates["health"] = animal.Health;
             }
-            if (!string.IsNullOrEmpty(animal.Weight))
+            if (animal.Weight == 0)
             {
                 updates["weight"] = animal.Weight;
             }
@@ -176,46 +160,7 @@ namespace SPCAAPI.Controllers
             {
                 updates["adoptionStatus"] = animal.AdoptionStatus;
             }
-            string newImageUrl = null;
-            if (animal.Image != null && animal.Image.Length > 0)
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(animal.Image.FileName);
-
-                var stream = animal.Image.OpenReadStream();
-                var firebaseStorage = new FirebaseStorage(
-                    "wilspca.appspot.com");
-
-                var uploadTask = firebaseStorage
-                    .Child("animal_images")
-                    .Child(fileName)
-                    .PutAsync(stream);
-
-                newImageUrl = await uploadTask;
-                updates["imageUrl"] = newImageUrl;
-
-                string oldImageUrl = snapshot.GetValue<string>("imageUrl");
-
-                if (!string.IsNullOrEmpty(oldImageUrl))
-                {
-                    // format the string to get to the firebase folder
-                    var imagePath = oldImageUrl.Substring(oldImageUrl.IndexOf("o/") + 2);
-                    imagePath = imagePath.Substring(0, imagePath.IndexOf("?alt="));
-
-                    // replace %2f in string to / to make sure formating is correct
-                    imagePath = imagePath.Replace("%2F", "/");
-
-                    try
-                    {
-                        await firebaseStorage
-                            .Child(imagePath)
-                            .DeleteAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(new { message = $"Error deleting image: {ex.Message}, {imagePath}" });
-                    }
-                }
-            }
+            
 
             if (updates.Count > 0)
             {

@@ -29,6 +29,7 @@ public partial class WilDbContext : DbContext
     public virtual DbSet<Volunteer> Volunteers { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=tcp:wilpoe.database.windows.net,1433;Initial Catalog=wilDB;Persist Security Info=False;User ID=wiladmin;Password=SPCAWil123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -59,22 +60,18 @@ public partial class WilDbContext : DbContext
 
         modelBuilder.Entity<Event>(entity =>
         {
-            entity.HasNoKey();
-
-            entity.Property(e => e.EventDate).HasMaxLength(50);
-            entity.Property(e => e.EventDescription).HasMaxLength(250);
             entity.Property(e => e.EventId).HasColumnName("EventID");
+            entity.Property(e => e.EventDate).HasMaxLength(50);
+            entity.Property(e => e.EventDescription).HasMaxLength(300);
             entity.Property(e => e.EventName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Report>(entity =>
         {
-            entity.HasNoKey();
-
+            entity.Property(e => e.ReportId).HasColumnName("ReportID");
             entity.Property(e => e.ContactInfo).HasMaxLength(50);
             entity.Property(e => e.Description).HasMaxLength(50);
             entity.Property(e => e.Location).HasMaxLength(50);
-            entity.Property(e => e.ReportId).HasColumnName("ReportID");
             entity.Property(e => e.Status).HasMaxLength(50);
         });
 
@@ -97,6 +94,7 @@ public partial class WilDbContext : DbContext
         {
             entity.Property(e => e.VolunteerId).HasColumnName("VolunteerID");
             entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
             entity.Property(e => e.Surname).HasMaxLength(50);
             entity.Property(e => e.VounteerDate).HasMaxLength(50);

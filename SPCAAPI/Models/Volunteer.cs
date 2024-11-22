@@ -14,4 +14,6 @@ public partial class Volunteer
     public string Surname { get; set; } = null!;
 
     public string VounteerDate { get; set; } = null!;
+
+    public string Name { get; set; } = null!;
 }

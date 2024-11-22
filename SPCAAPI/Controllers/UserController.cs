@@ -159,47 +159,6 @@ namespace SPCAAPI.Controllers
             {
                 updates["Address"] = user.Address;
             }
-            string newImageUrl = null;
-            if (user.ProfilePicture != null && user.ProfilePicture.Length > 0)
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(user.ProfilePicture.FileName);
-
-                var stream = user.ProfilePicture.OpenReadStream();
-                var firebaseStorage = new FirebaseStorage(
-                    "wilspca.appspot.com");
-
-                var uploadTask = firebaseStorage
-                    .Child("user_images")
-                    .Child(fileName)
-                    .PutAsync(stream);
-
-                newImageUrl = await uploadTask;
-                updates["imageUrl"] = newImageUrl;
-
-                string oldImageUrl = snapshot.GetValue<string>("imageUrl");
-
-                if (!string.IsNullOrEmpty(oldImageUrl) && oldImageUrl != "https://firebasestorage.googleapis.com/v0/b/wilspca.appspot.com/o/animal_images%2FSPCALOGO.jpg?alt=media&token=8b42660f-821c-4939-aa9e-6aca76cc1bed")
-                {
-                    // format the string to get to the firebase folder
-                    var imagePath = oldImageUrl.Substring(oldImageUrl.IndexOf("o/") + 2);
-                    imagePath = imagePath.Substring(0, imagePath.IndexOf("?alt="));
-
-                    // replace %2f in string to / to make sure formating is correct
-                    imagePath = imagePath.Replace("%2F", "/");
-
-                    try
-                    {
-                        await firebaseStorage
-                            .Child(imagePath)
-                            .DeleteAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(new { message = $"Error deleting image: {ex.Message}, {imagePath}" });
-                    }
-                }
-            }
-
             if (updates.Count > 0)
             {
                 await docRef.UpdateAsync(updates);
