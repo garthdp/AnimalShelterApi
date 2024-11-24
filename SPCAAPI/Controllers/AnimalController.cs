@@ -5,6 +5,7 @@ using SPCAAPI.Models;
 using SPCAAPI.Data;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
+using Azure.Storage.Blobs.Models;
 
 namespace SPCAAPI.Controllers
 {
@@ -38,6 +39,7 @@ namespace SPCAAPI.Controllers
             Link: https://www.youtube.com/watch?v=nh17WlHtODs
             Usage: Used to understand how to upload files to Firebase Storage using .NET Core
             */
+
             if (animal.file == null || animal.file.Length == 0)
             {
                 return BadRequest(new { message = "File is required." });
@@ -113,7 +115,7 @@ namespace SPCAAPI.Controllers
             }
         }
         [HttpPatch]
-        public async Task<IActionResult> Patch(int id, [FromForm] Animal animal, IFormFile file)
+        public async Task<IActionResult> Patch(int id, [FromForm] RecieveAnimal animal)
         {
             var foundAnimal = _context.Animals.Where(x => x.AnimalId == id).FirstOrDefault();
 
@@ -122,7 +124,7 @@ namespace SPCAAPI.Controllers
                 return NotFound(new { message = "Animal not found" });
             }
 
-            if (file != null && file.Length > 0)
+            if (animal.file != null && animal.file.Length > 0)
             {
                 if (!string.IsNullOrEmpty(foundAnimal.ImageUrl))
                 {
@@ -137,7 +139,7 @@ namespace SPCAAPI.Controllers
                 }
                 try
                 {
-                    var newImageUrl = await UploadFileToBlobAsync(file, "animals", _configuration);
+                    var newImageUrl = await UploadFileToBlobAsync(animal.file, "animals", _configuration);
                     foundAnimal.ImageUrl = newImageUrl;
                 }
                 catch (Exception ex)
@@ -158,9 +160,9 @@ namespace SPCAAPI.Controllers
             {
                 foundAnimal.Health = animal.Health;
             }
-            if (animal.Weight == 0)
+            if (int.Parse(animal.Weight) != 0)
             {
-                foundAnimal.Weight = animal.Weight;
+                foundAnimal.Weight = int.Parse(animal.Weight);
             }
             if (!string.IsNullOrEmpty(animal.AnimalType))
             {
@@ -170,15 +172,9 @@ namespace SPCAAPI.Controllers
             {
                 foundAnimal.AdoptionStatus = animal.AdoptionStatus;
             }
-
-            if (foundAnimal != animal)
-            {
-                _context.Animals.Update(foundAnimal);
-                await _context.SaveChangesAsync();
-                return Ok(new { message = "Animal updated", foundAnimal });
-            }
-
-            return BadRequest(new { message = "No updates provided" });
+            _context.Animals.Update(foundAnimal);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Animal updated", foundAnimal });
         }
 
         private async Task<string> UploadFileToBlobAsync(IFormFile file, string containerName, IConfiguration configuration)
@@ -202,10 +198,21 @@ namespace SPCAAPI.Controllers
 
             var blobName = $"{Guid.NewGuid()}-{file.FileName}";
             var blobClient = blobContainerClient.GetBlobClient(blobName);
+            var contentType = file.ContentType;
+
+            // BlobHttpHeaders Class
+            // source = https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.models.blobhttpheaders?view=azure-dotnet
+            // how to set it so that the user opens the image in brower with content disposition set to inline, this prevents the user from downloading the image.
+
+            var headers = new BlobHttpHeaders
+            {
+                ContentType = contentType, 
+                ContentDisposition = "inline" 
+            };
 
             using (var stream = file.OpenReadStream())
             {
-                await blobClient.UploadAsync(stream);
+                await blobClient.UploadAsync(stream, headers);
             }
 
             return blobClient.Uri.ToString();
@@ -241,15 +248,7 @@ namespace SPCAAPI.Controllers
                 var blobClient = blobContainerClient.GetBlobClient(blobName);
 
                 var exists = await blobClient.ExistsAsync();
-                if (exists)
-                {
-                    await blobClient.DeleteIfExistsAsync();
-                    Console.WriteLine($"Blob {blobName} deleted successfully.");
-                }
-                else
-                {
-                    Console.WriteLine($"Blob {blobName} not found for deletion.");
-                }
+                await blobClient.DeleteIfExistsAsync();
             }
             catch (Exception ex)
             {

@@ -2,6 +2,9 @@
 using SPCAAPI.Models;
 using BCrypt.Net;
 using SPCAAPI.Data;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Configuration;
 
 namespace SPCAAPI.Controllers
 {
@@ -10,9 +13,11 @@ namespace SPCAAPI.Controllers
     public class UserController : Controller
     {
         private readonly WilDbContext _context;
-        public UserController(WilDbContext context)
+        private readonly IConfiguration _configuration;
+        public UserController(WilDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // Method to register a user 
@@ -36,7 +41,7 @@ namespace SPCAAPI.Controllers
 
                 user.Password = hashedPassword;
                 user.Address = "";
-                user.ProfilePicture = "";
+                user.ProfilePicture = "https://spcablob.blob.core.windows.net/users/logo.png";
                 user.PhoneNumber = "";
                 user.UserType = "User";
                 user.City = "";
@@ -79,7 +84,51 @@ namespace SPCAAPI.Controllers
                 return NotFound(new { message = "Email or password incorrect"});
             }
         }
+        // Method to login
+        [HttpGet("CheckAdminAccess/{email}")]
+        public async Task<IActionResult> CheckAdminAccess(string email)
+        {
+            var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
 
+            if (user != null)
+            {
+                if (user.UserType == "Admin")
+                {
+                    return Ok(new { message = "Success" });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Do not have access." });
+                }
+            }
+            else
+            {
+                return BadRequest(new { message = "Not logged in." });
+            }
+        }
+
+        // Method to login
+        [HttpGet("CheckUserAccess/{email}")]
+        public async Task<IActionResult> CheckUserAccess(string email)
+        {
+            var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
+
+            if (user != null)
+            {
+                if (user.UserType == "User")
+                {
+                    return Ok(new { message = "Success" });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Do not have access." });
+                }
+            }
+            else
+            {
+                return BadRequest(new { message = "Not logged in." });
+            }
+        }
         // Method to login
         [HttpGet("GetInfo/{email}")]
         public async Task<IActionResult> GetInfo(string email)
@@ -120,13 +169,37 @@ namespace SPCAAPI.Controllers
             }
         }
         [HttpPatch("Update/{email}")]
-        public async Task<IActionResult> Patch(string email, [FromForm] User user)
+        public async Task<IActionResult> Patch(string email, [FromForm] RecieveUser user)
         {
             var foundUser = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
 
             if (foundUser == null)
             {
                 return NotFound(new { message = "User not found" });
+            }
+
+            if (user.file != null && user.file.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(user.ProfilePicture))
+                {
+                    try
+                    {
+                        await DeleteBlobAsync(user.ProfilePicture, _configuration);
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(new { message = $"Error deleting old image: {ex.Message}" });
+                    }
+                }
+                try
+                {
+                    var newImageUrl = await UploadFileToBlobAsync(user.file, "users", _configuration);
+                    foundUser.ProfilePicture = newImageUrl;
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { message = $"Error uploading new image: {ex.Message}" });
+                }
             }
 
             if (!string.IsNullOrEmpty(user.FirstName))
@@ -153,6 +226,85 @@ namespace SPCAAPI.Controllers
             _context.Users.Update(foundUser);
             _context.SaveChanges();
             return Ok(new { message = "User updated", foundUser });
+        }
+        private async Task<string> UploadFileToBlobAsync(IFormFile file, string containerName, IConfiguration configuration)
+        {
+            // Upload a blob with .NET
+            // source = https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-upload
+            // used to understand more about how to upload file to blob storage. also applied knowledge from 2nd year.
+
+            var connectionString = configuration.GetValue<string>("ConnectionStrings:StorageConnectionString");
+
+            var blobServiceClient = new BlobServiceClient(connectionString);
+
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            await blobContainerClient.CreateIfNotExistsAsync();
+
+            // Azure blob storage - auto generate unique blob name
+            // link = https://stackoverflow.com/questions/14319340/azure-blob-storage-auto-generate-unique-blob-name
+            // author = Sandrino Di Mattia
+            // author link = https://stackoverflow.com/users/384546/sandrino-di-mattia
+            // learned how to make unique names with GUID
+
+            var blobName = $"{Guid.NewGuid()}-{file.FileName}";
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+            var contentType = file.ContentType;
+
+            // BlobHttpHeaders Class
+            // source = https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.models.blobhttpheaders?view=azure-dotnet
+            // how to set it so that the user opens the image in brower with content disposition set to inline, this prevents the user from downloading the image.
+
+            var headers = new BlobHttpHeaders
+            {
+                ContentType = contentType,
+                ContentDisposition = "inline"
+            };
+
+            using (var stream = file.OpenReadStream())
+            {
+                await blobClient.UploadAsync(stream, headers);
+            }
+
+            return blobClient.Uri.ToString();
+        }
+        private async Task DeleteBlobAsync(string blobUrl, IConfiguration configuration)
+        {
+            try
+            {
+                var connectionString = configuration.GetValue<string>("ConnectionStrings:StorageConnectionString");
+
+                Uri uri = new Uri(blobUrl);
+
+                // Get last path from URL
+                // link = https://stackoverflow.com/questions/54968854/get-last-path-from-url
+                // author = YosiFZ
+                // author link = https://stackoverflow.com/users/679099/yosifz
+                // learned how to get the name of the blob from the last part of the uri
+
+                string blobName = uri.Segments.Last();
+                string containerName = "animals";
+
+                // get rid of escape characters from uri blob name
+                // link = https://stackoverflow.com/questions/239567/decode-escaped-url-without-using-httputility-urldecode
+                // author = Igal Tabachnik
+                // author link = https://stackoverflow.com/users/8205/igal-tabachnik
+                // learned how to get rid of escape characters from uri blob name
+
+                blobName = Uri.UnescapeDataString(blobName);
+
+                var blobServiceClient = new BlobServiceClient(connectionString);
+
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+                var exists = await blobClient.ExistsAsync();
+                await blobClient.DeleteIfExistsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting blob: {ex.Message}");
+                throw;
+            }
         }
     }
 }

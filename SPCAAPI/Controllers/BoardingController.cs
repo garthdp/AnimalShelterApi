@@ -36,7 +36,7 @@ namespace SPCAAPI.Controllers
         {
             var requests = _context.BoardingRequests.ToList();
 
-            if (requests == null || requests.Count == 0)
+            if (requests == null)
             {
                 return NotFound(new { message = "No boarding requests found." });
             }

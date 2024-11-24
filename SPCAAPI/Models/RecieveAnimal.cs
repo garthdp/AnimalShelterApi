@@ -4,19 +4,19 @@
     {
         public int AnimalId { get; set; }
 
-        public string AdoptionStatus { get; set; } = null!;
+        public string? AdoptionStatus { get; set; }
 
-        public string AnimalType { get; set; } = null!;
+        public string? AnimalType { get; set; }
 
-        public string Breed { get; set; } = null!;
+        public string? Breed { get; set; }
 
-        public string Health { get; set; } = null!;
+        public string? Health { get; set; }
 
-        public string ImageUrl { get; set; } = null!;
+        public string? ImageUrl { get; set; }
 
-        public string Name { get; set; } = null!;
+        public string? Name { get; set; }
 
-        public string Weight { get; set; } = null!;
-        public IFormFile file { get; set; }
+        public string? Weight { get; set; }
+        public IFormFile? file { get; set; }
     }
 }
