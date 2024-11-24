@@ -1,19 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SPCAAPI.Models;
 
 namespace SPCAAPI.Data;
 
 public partial class WilDbContext : DbContext
 {
+    private readonly IConfiguration _configuration;
+    public WilDbContext(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
     public WilDbContext()
     {
     }
-
-    public WilDbContext(DbContextOptions<WilDbContext> options)
+    public WilDbContext(DbContextOptions<WilDbContext> options, IConfiguration configuration)
         : base(options)
     {
+        _configuration = configuration;
     }
 
     public virtual DbSet<Animal> Animals { get; set; }
@@ -28,10 +34,15 @@ public partial class WilDbContext : DbContext
 
     public virtual DbSet<Volunteer> Volunteers { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=tcp:wilpoe.database.windows.net,1433;Initial Catalog=wilDB;Persist Security Info=False;User ID=wiladmin;Password=SPCAWil123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            var connectionString = _configuration.GetConnectionString("WilDb");
+            optionsBuilder.UseSqlServer(connectionString);
+        }
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Animal>(entity =>
@@ -77,8 +88,9 @@ public partial class WilDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasNoKey();
+            entity.HasKey(e => e.UserEmail);
 
+            entity.Property(e => e.UserEmail).HasMaxLength(100);
             entity.Property(e => e.Address).HasMaxLength(100);
             entity.Property(e => e.City).HasMaxLength(100);
             entity.Property(e => e.FirstName).HasMaxLength(100);
@@ -86,7 +98,6 @@ public partial class WilDbContext : DbContext
             entity.Property(e => e.Password).HasMaxLength(200);
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
             entity.Property(e => e.ProfilePicture).HasMaxLength(50);
-            entity.Property(e => e.UserEmail).HasMaxLength(100);
             entity.Property(e => e.UserType).HasMaxLength(50);
         });
 
@@ -97,7 +108,7 @@ public partial class WilDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
             entity.Property(e => e.Surname).HasMaxLength(50);
-            entity.Property(e => e.VounteerDate).HasMaxLength(50);
+            entity.Property(e => e.VolunteerDate).HasMaxLength(50);
         });
 
         OnModelCreatingPartial(modelBuilder);

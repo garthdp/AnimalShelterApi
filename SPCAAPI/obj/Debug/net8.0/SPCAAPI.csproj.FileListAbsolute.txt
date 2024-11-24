@@ -60,7 +60,6 @@ C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Google.Cloud.Storage.V1.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\DevOne.Security.Cryptography.BCrypt.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\BCrypt.Net-Next.dll
-C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\SPCAAPI.staticwebassets.endpoints.json
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Azure.Core.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Humanizer.dll
@@ -197,6 +196,10 @@ C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
-C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Debug\net8.0\staticwebassets\msbuild.SPCAAPI.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Azure.Data.Tables.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Azure.Storage.Blobs.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Azure.Storage.Common.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Azure.Storage.Files.Shares.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Azure.Storage.Queues.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Microsoft.Extensions.Azure.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\System.IO.Hashing.dll

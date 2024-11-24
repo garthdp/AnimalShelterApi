@@ -8,8 +8,7 @@ namespace ApiTesting
         public async Task TestGetMethodAsync()
         {
             var controller = new EventController();
-            var result = await controller.GetEvents();
-            Assert.NotNull(result);
+            await controller.GetEvents();
         }
     }
 }

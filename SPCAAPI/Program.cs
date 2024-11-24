@@ -1,5 +1,7 @@
 
 using Google.Api;
+using Microsoft.EntityFrameworkCore;
+using SPCAAPI.Data;
 
 namespace SPCAAPI
 {
@@ -9,31 +11,31 @@ namespace SPCAAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
-                               builder => builder.AllowAnyOrigin()  // Allow any origin
-                              .AllowAnyMethod()  // Allow any HTTP method (GET, POST, etc.)
+                               builder => builder.AllowAnyOrigin()  
+                              .AllowAnyMethod()  
                               .AllowAnyHeader());
             });
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddDbContext<WilDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("WilDb")));
 
             var app = builder.Build();
 
             app.UseCors("AllowAll");
 
+            app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

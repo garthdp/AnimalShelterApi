@@ -1,8 +1,7 @@
-﻿using Google.Cloud.Firestore;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SPCAAPI.Models;
 using BCrypt.Net;
-using Firebase.Storage;
+using SPCAAPI.Data;
 
 namespace SPCAAPI.Controllers
 {
@@ -10,7 +9,11 @@ namespace SPCAAPI.Controllers
     [ApiController]
     public class UserController : Controller
     {
-        public static FirestoreDb db = AnimalController.establishCon(); // Adjust this for your Firestore initialization
+        private readonly WilDbContext _context;
+        public UserController(WilDbContext context)
+        {
+            _context = context;
+        }
 
         // Method to register a user 
         [HttpPost("Register")]
@@ -22,34 +25,24 @@ namespace SPCAAPI.Controllers
                 {
                     return BadRequest(new { message = "Invalid user data" });
                 }
-                Query query = db.Collection("Users").WhereEqualTo("Email", user.UserEmail);
-                QuerySnapshot snapshot = await query.GetSnapshotAsync();
+                var checkEmail = _context.Users.Where(x => x.UserEmail == user.UserEmail).FirstOrDefault();
 
-                if (snapshot.Documents.Count > 0)
+                if (checkEmail != null)
                 {
                     return BadRequest(new { message = "Error, email in use." });
                 }
 
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-                // Add the user to the Firestore collection
-                CollectionReference coll = db.Collection("Users");
-                DocumentReference docRef = coll.Document(user.UserEmail);
+                user.Password = hashedPassword;
+                user.Address = "";
+                user.ProfilePicture = "";
+                user.PhoneNumber = "";
+                user.UserType = "User";
+                user.City = "";
 
-                Dictionary<string, object> data = new Dictionary<string, object>
-                {
-                    { "Email", user.UserEmail },
-                    { "Password", hashedPassword },
-                    { "UserType", "User" },
-                    { "FirstName", user.FirstName },
-                    { "LastName", user.LastName },
-                    { "PhoneNumber", "" },
-                    { "City", "" },
-                    { "Address", "" },
-                    { "imageUrl", "https://firebasestorage.googleapis.com/v0/b/wilspca.appspot.com/o/animal_images%2FSPCALOGO.jpg?alt=media&token=8b42660f-821c-4939-aa9e-6aca76cc1bed" },
-                };
-
-                await docRef.SetAsync(data);
+                _context.Users.Add(user);
+                _context.SaveChanges();
 
                 return Ok(new { message = "User created successfully" });
             }
@@ -63,15 +56,17 @@ namespace SPCAAPI.Controllers
         [HttpGet("Login")]
         public async Task<IActionResult> Login(string email, string password)
         {
-            DocumentReference docRef = db.Collection("Users").Document(email);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
 
-            if (snapshot.Exists)
+            if (user != null)
             {
-                Dictionary<string, object> userInfo = snapshot.ConvertTo<Dictionary<string, object>>();
-                string storedHashedPassword = userInfo["Password"].ToString();
+
+                string storedHashedPassword = user.Password;
                 if (BCrypt.Net.BCrypt.Verify(password, storedHashedPassword))
                 {
+                    User userInfo = new User();
+                    userInfo.UserEmail = email;
+                    userInfo.UserType = user.UserType;
                     return Ok(userInfo);
                 }
                 else
@@ -89,13 +84,11 @@ namespace SPCAAPI.Controllers
         [HttpGet("GetInfo/{email}")]
         public async Task<IActionResult> GetInfo(string email)
         {
-            DocumentReference docRef = db.Collection("Users").Document(email);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
 
-            if (snapshot.Exists)
+            if (user != null)
             {
-                Dictionary<string, object> userInfo = snapshot.ConvertTo<Dictionary<string, object>>();
-                return Ok(userInfo);
+                return Ok(user);
             }
             else
             {
@@ -110,15 +103,15 @@ namespace SPCAAPI.Controllers
         {
             try
             {
-                DocumentReference docRef = db.Collection("Users").Document(email);
-                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
 
-                if (!snapshot.Exists)
+                if (user != null)
                 {
                     return NotFound(new { message = "User not found" });
                 }
 
-                await docRef.DeleteAsync();
+                _context.Users.Remove(user);
+                _context.SaveChanges();
                 return Ok(new { message = "User deleted successfully" });
             }
             catch (Exception ex)
@@ -129,43 +122,37 @@ namespace SPCAAPI.Controllers
         [HttpPatch("Update/{email}")]
         public async Task<IActionResult> Patch(string email, [FromForm] User user)
         {
-            DocumentReference docRef = db.Collection("Users").Document(email);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            var foundUser = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
 
-            if (!snapshot.Exists)
+            if (foundUser == null)
             {
                 return NotFound(new { message = "User not found" });
             }
 
-            Dictionary<string, object> updates = new Dictionary<string, object>();
-
             if (!string.IsNullOrEmpty(user.FirstName))
             {
-                updates["FirstName"] = user.FirstName;
+                foundUser.FirstName = user.FirstName;
             }
             if (!string.IsNullOrEmpty(user.LastName))
             {
-                updates["LastName"] = user.LastName;
+                foundUser.LastName = user.LastName;
             }
             if (!string.IsNullOrEmpty(user.PhoneNumber))
             {
-                updates["PhoneNumber"] = user.PhoneNumber;
+                foundUser.PhoneNumber = user.PhoneNumber;
             }
             if (!string.IsNullOrEmpty(user.City))
             {
-                updates["City"] = user.City;
+                foundUser.City = user.City;
             }
             if (!string.IsNullOrEmpty(user.Address))
             {
-                updates["Address"] = user.Address;
-            }
-            if (updates.Count > 0)
-            {
-                await docRef.UpdateAsync(updates);
-                return Ok(new { message = "Animal updated", updates });
+                foundUser.Address = user.Address;
             }
 
-            return BadRequest(new { message = "No updates provided" });
+            _context.Users.Update(foundUser);
+            _context.SaveChanges();
+            return Ok(new { message = "User updated", foundUser });
         }
     }
 }

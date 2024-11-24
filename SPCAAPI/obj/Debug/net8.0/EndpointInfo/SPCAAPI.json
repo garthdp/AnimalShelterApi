@@ -41,6 +41,10 @@
                   "Weight": {
                     "type": "integer",
                     "format": "int32"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
                   }
                 }
               },
@@ -68,6 +72,9 @@
                 },
                 "Weight": {
                   "style": "form"
+                },
+                "file": {
+                  "style": "form"
                 }
               }
             }
@@ -88,7 +95,8 @@
             "name": "id",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -107,7 +115,8 @@
             "name": "id",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -142,6 +151,10 @@
                   "Weight": {
                     "type": "integer",
                     "format": "int32"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
                   }
                 }
               },
@@ -168,6 +181,9 @@
                   "style": "form"
                 },
                 "Weight": {
+                  "style": "form"
+                },
+                "file": {
                   "style": "form"
                 }
               }

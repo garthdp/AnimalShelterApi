@@ -13,8 +13,11 @@ namespace SPCAAPI.Controllers
     [ApiController]
     public class EventController : Controller
     {
-        public static FirestoreDb db = AnimalController.establishCon(); // Adjust this for your Firestore initialization
-        public WilDbContext context = new WilDbContext();
+        private readonly WilDbContext _context;
+        public EventController(WilDbContext context)
+        {
+            _context = context;
+        }
 
         // Method to add a new event to Firestore
         [HttpPost("AddEvent")]
@@ -32,8 +35,8 @@ namespace SPCAAPI.Controllers
                 addEvent.EventDate = newEvent.eventDate;
                 addEvent.EventDescription = newEvent.eventDescription;
 
-                context.Events.Add(addEvent);
-                context.SaveChanges();
+                _context.Events.Add(addEvent);
+                _context.SaveChanges();
 
                 return Ok(new { message = "Event added successfully" });
             }
@@ -48,7 +51,7 @@ namespace SPCAAPI.Controllers
         public async Task<IActionResult> GetEvents()
         {
 
-            var FindEvents = context.Events.ToList();
+            var FindEvents = _context.Events.ToList();
 
             if (FindEvents == null || FindEvents.Count == 0)
             {
@@ -62,7 +65,7 @@ namespace SPCAAPI.Controllers
         [HttpGet("GetEvent/{id}")]
         public async Task<IActionResult> GetEvent(int id)
         {
-            var ev = context.Events.Where(x => x.EventId == id).FirstOrDefault();
+            var ev = _context.Events.Where(x => x.EventId == id).FirstOrDefault();
 
             if (ev != null)
             {
@@ -80,7 +83,7 @@ namespace SPCAAPI.Controllers
         {
             try
             {
-                var ev = context.Events.Where(x => x.EventId == id).FirstOrDefault();
+                var ev = _context.Events.Where(x => x.EventId == id).FirstOrDefault();
 
                 if (ev == null)
                 {
@@ -90,8 +93,8 @@ namespace SPCAAPI.Controllers
                 ev.EventDate = updatedEvent.eventDate;
                 ev.EventDescription = updatedEvent.eventDescription;
                 ev.EventName = updatedEvent.eventName;
-                context.Events.Update(ev);
-                context.SaveChanges();
+                _context.Events.Update(ev);
+                _context.SaveChanges();
 
                 return Ok(new { message = "Event updated successfully" });
             }
@@ -107,15 +110,15 @@ namespace SPCAAPI.Controllers
         {
             try
             {
-                var ev = context.Events.Where(x => x.EventId == id).FirstOrDefault();
+                var ev = _context.Events.Where(x => x.EventId == id).FirstOrDefault();
 
                 if (ev == null)
                 {
                     return NotFound(new { message = "Event not found" });
                 }
 
-                context.Events.Remove(ev);
-                context.SaveChanges();
+                _context.Events.Remove(ev);
+                _context.SaveChanges();
 
                 return Ok(new { message = "Event deleted successfully" });
             }

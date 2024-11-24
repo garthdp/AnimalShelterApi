@@ -9,8 +9,11 @@ namespace SPCAAPI.Controllers
     [ApiController]
     public class VolunteerController : Controller
     {
-        public static FirestoreDb db = AnimalController.establishCon(); // Adjust this for your Firestore initialization
-        WilDbContext context = new WilDbContext();
+        private readonly WilDbContext _context;
+        public VolunteerController(WilDbContext context)
+        {
+            _context = context;
+        }
 
         [HttpPost("AddVolunteer")]
         public async Task<IActionResult> AddVolunteer([FromForm] Volunteer volunteer)
@@ -22,8 +25,8 @@ namespace SPCAAPI.Controllers
                     return BadRequest(new { message = "Invalid volunteer data" });
                 }
 
-                context.Volunteers.Add(volunteer);
-                context.SaveChanges();
+                _context.Volunteers.Add(volunteer);
+                _context.SaveChanges();
 
                 return Ok(new { message = "Volunteer added successfully" });
             }
@@ -35,7 +38,7 @@ namespace SPCAAPI.Controllers
         [HttpGet("GetVolunteers")]
         public async Task<IActionResult> GetVolunteers()
         {
-            var volunteers = context.Volunteers.ToList();
+            var volunteers = _context.Volunteers.ToList();
 
             if (volunteers == null || volunteers.Count == 0)
             {
@@ -50,7 +53,7 @@ namespace SPCAAPI.Controllers
         {
             try
             {
-                var vol = context.Volunteers.Where(x => x.VolunteerId == id).FirstOrDefault();
+                var vol = _context.Volunteers.Where(x => x.VolunteerId == id).FirstOrDefault();
 
                 if (vol == null)
                 {
@@ -59,12 +62,12 @@ namespace SPCAAPI.Controllers
 
                 vol.Name = volunteer.Name;
                 vol.Surname = volunteer.Surname;
-                vol.VounteerDate = volunteer.VounteerDate;
+                vol.VolunteerDate = volunteer.VolunteerDate;
                 vol.PhoneNumber = volunteer.PhoneNumber;
                 vol.Email = volunteer.Email;
 
-                context.Update(vol);
-                context.SaveChanges();
+                _context.Update(vol);
+                _context.SaveChanges();
 
                 return Ok(new { message = "Volunteer updated successfully" });
             }
@@ -79,15 +82,15 @@ namespace SPCAAPI.Controllers
         {
             try
             {
-                var vol = context.Volunteers.Where(x => x.VolunteerId == id).FirstOrDefault();
+                var vol = _context.Volunteers.Where(x => x.VolunteerId == id).FirstOrDefault();
 
                 if (vol == null)
                 {
                     return NotFound(new { message = "Volunteer not found" });
                 }
 
-                context.Volunteers.Remove(vol);
-                context.SaveChanges();
+                _context.Volunteers.Remove(vol);
+                _context.SaveChanges();
 
                 return Ok(new { message = "Volunteer deleted successfully" });
             }

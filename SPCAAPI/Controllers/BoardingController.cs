@@ -10,16 +10,18 @@ namespace SPCAAPI.Controllers
     [ApiController]
     public class BoardingController : Controller
     {
-        public static FirestoreDb db = AnimalController.establishCon();
-        WilDbContext context = new WilDbContext();
-
+        private readonly WilDbContext _context;
+        public BoardingController(WilDbContext context)
+        {
+            _context = context;
+        }
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] BoardingRequest boardingRequest)
         {
             try
             {
-                context.BoardingRequests.Add(boardingRequest);
-                context.SaveChanges();
+                _context.BoardingRequests.Add(boardingRequest);
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Boarding request submitted successfully" });
             }
@@ -32,7 +34,7 @@ namespace SPCAAPI.Controllers
         [HttpGet("GetBoardingRequests")]
         public async Task<IActionResult> GetBoardingRequests()
         {
-            var requests = context.BoardingRequests.ToList();
+            var requests = _context.BoardingRequests.ToList();
 
             if (requests == null || requests.Count == 0)
             {
@@ -47,15 +49,15 @@ namespace SPCAAPI.Controllers
         {
             try
             {
-                var request = context.BoardingRequests.Where(x => x.BoardingId == id).FirstOrDefault();
+                var request = _context.BoardingRequests.Where(x => x.BoardingId == id).FirstOrDefault();
 
                 if (request == null)
                 {
                     return NotFound(new { message = "Boarding request not found" });
                 }
 
-                context.BoardingRequests.Remove(request);
-                context.SaveChanges();
+                _context.BoardingRequests.Remove(request);
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Boarding request deleted successfully" });
             }
@@ -69,7 +71,7 @@ namespace SPCAAPI.Controllers
         {
             try
             {
-                var request = context.BoardingRequests.Where(x => x.BoardingId == id).FirstOrDefault();
+                var request = _context.BoardingRequests.Where(x => x.BoardingId == id).FirstOrDefault();
 
                 if (request == null)
                 {
@@ -82,8 +84,8 @@ namespace SPCAAPI.Controllers
                 request.OwnerEmail = updatedRequest.OwnerEmail;
                 request.PetName = updatedRequest.PetName;
                 request.Breed = updatedRequest.Breed;
-                context.BoardingRequests.Update(request);
-                context.SaveChanges();
+                _context.BoardingRequests.Update(request);
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Event updated successfully" });
             }

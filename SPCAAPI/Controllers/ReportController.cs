@@ -10,8 +10,11 @@ namespace SPCAAPI.Controllers
     [ApiController]
     public class ReportController : Controller
     {
-        public static FirestoreDb db = AnimalController.establishCon();
-        WilDbContext context = new WilDbContext();
+        private readonly WilDbContext _context;
+        public ReportController(WilDbContext context)
+        {
+            _context = context;
+        }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] Report report)
@@ -23,8 +26,8 @@ namespace SPCAAPI.Controllers
                     return BadRequest(new { message = "Incorrect report format." });
                 }
 
-                context.Reports.Add(report);
-                context.SaveChanges();
+                _context.Reports.Add(report);
+                _context.SaveChanges();
 
                 return Ok(new { message = "Report submitted successfully"});
             }
@@ -38,7 +41,7 @@ namespace SPCAAPI.Controllers
         [HttpGet("GetReports")]
         public async Task<IActionResult> GetReports()
         {
-            var reports = context.Reports.ToList();
+            var reports = _context.Reports.ToList();
 
             if (reports == null || reports.Count == 0)
             {
@@ -51,7 +54,7 @@ namespace SPCAAPI.Controllers
         [HttpGet("UserReports/{email}")]
         public async Task<IActionResult> UserReports(string email)
         {
-            var reports = context.Reports.Where(x => x.ContactInfo == email).ToList();
+            var reports = _context.Reports.Where(x => x.ContactInfo == email).ToList();
 
             if (reports == null || reports.Count == 0)
             {
@@ -65,12 +68,12 @@ namespace SPCAAPI.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var report = context.Reports.Where(x => x.ReportId == id).FirstOrDefault();
+            var report = _context.Reports.Where(x => x.ReportId == id).FirstOrDefault();
 
             if (report != null)
             {
-                context.Reports.Remove(report);
-                context.SaveChanges();
+                _context.Reports.Remove(report);
+                _context.SaveChanges();
                 return Ok(new { message = "Report deleted" });
             }
             else

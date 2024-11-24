@@ -2,6 +2,9 @@
 using Google.Cloud.Firestore;
 using Firebase.Storage;
 using SPCAAPI.Models;
+using SPCAAPI.Data;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Configuration;
 
 namespace SPCAAPI.Controllers
 {
@@ -10,6 +13,13 @@ namespace SPCAAPI.Controllers
     public class AnimalController : Controller
     {
         public static FirestoreDb db = establishCon();
+        private readonly WilDbContext _context;
+        private readonly IConfiguration _configuration;
+        public AnimalController(WilDbContext context, IConfiguration configuration)
+        {
+            _context = context;
+            _configuration = configuration;
+        }
         public static FirestoreDb establishCon()
         {
             string path = AppDomain.CurrentDomain.BaseDirectory + @"wilspca.json";
@@ -19,7 +29,7 @@ namespace SPCAAPI.Controllers
             return db;
         }
         [HttpPost]
-        public async Task<IActionResult> Post([FromForm] Animal animal)
+        public async Task<IActionResult> Post([FromForm] RecieveAnimal animal)
         {
             /*
             Code Attribution
@@ -28,25 +38,34 @@ namespace SPCAAPI.Controllers
             Link: https://www.youtube.com/watch?v=nh17WlHtODs
             Usage: Used to understand how to upload files to Firebase Storage using .NET Core
             */
-
-            
-
-            CollectionReference coll = db.Collection("Animals");
-            DocumentReference docRef = coll.Document();
-
-            Dictionary<string, object> data = new Dictionary<string, object>()
+            if (animal.file == null || animal.file.Length == 0)
             {
-                { "name", animal.Name },
-                { "breed", animal.Breed },
-                { "health", animal.Health },
-                { "weight", animal.Weight },
-                { "animalType", animal.AnimalType },
-                { "adoptionStatus", animal.AdoptionStatus }
-            };
+                return BadRequest(new { message = "File is required." });
+            }
+            try
+            {
+                // Upload the file to Azure Blob Storage and get the URL
+                var fileUrl = await UploadFileToBlobAsync(animal.file, "animals", _configuration);
 
-            await docRef.SetAsync(data);
+                Animal saveAnimal = new Animal();
+                saveAnimal.AdoptionStatus = animal.AdoptionStatus;
+                saveAnimal.Weight = int.Parse(animal.Weight);
+                saveAnimal.Breed = animal.Breed;
+                saveAnimal.Health = animal.Health;
+                saveAnimal.Name = animal.Name;
+                saveAnimal.AnimalType = animal.AnimalType;
+                saveAnimal.ImageUrl = fileUrl;
 
-            return Ok(new { message = "Added animal"});
+                // Save the animal data to the database
+                _context.Animals.Add(saveAnimal);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Animal added successfully", fileUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error uploading file", error = ex.Message });
+            }
         }
 
         [HttpGet("GetAnimals")]
@@ -59,63 +78,33 @@ namespace SPCAAPI.Controllers
             Link: https://www.youtube.com/watch?v=SrRrxYBR3s0&list=PLrb70iTVZjZPEbhCh85VQIpRbQos2Qx3i&index=3
             Usage: Used to get collection of data from Firestore database 
             */
-            Query qRef = db.Collection("Animals");
-            QuerySnapshot snapshot = await qRef.GetSnapshotAsync();
+            var animals = _context.Animals.ToList();
 
-            if (snapshot == null)
+            if (animals == null)
             {
                 return NotFound(new { message = "No animals found." });
-            }
-
-            List<Dictionary<string, object>> animals = new List<Dictionary<string, object>>();
-
-            foreach (DocumentSnapshot docsnap in snapshot)
-            {
-                Dictionary<string, object> entry = docsnap.ConvertTo<Dictionary<string, object>>();
-                entry.Add("petId", docsnap.Reference.Id.ToString());
-
-                if (docsnap.Exists)
-                {
-                    animals.Add(entry);
-                }
             }
 
             return Ok(animals);
         }
         [HttpDelete]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int id)
         {
-            DocumentReference docref = db.Collection("Animals").Document(id);
-            DocumentSnapshot snapshot = await docref.GetSnapshotAsync();
+            var animal = _context.Animals.Where(x => x.AnimalId == id).FirstOrDefault();
 
-            if (snapshot.Exists)
+            if (animal != null)
             {
-                string imageUrl = snapshot.GetValue<string>("imageUrl");
-
-                if (!string.IsNullOrEmpty(imageUrl))
+                try
                 {
-                    // format the string to get to the firebase folder
-                    var imagePath = imageUrl.Substring(imageUrl.IndexOf("o/") + 2);
-                    imagePath = imagePath.Substring(0, imagePath.IndexOf("?alt="));
-
-                    // replace %2f in string to / to make sure formating is correct
-                    imagePath = imagePath.Replace("%2F", "/");
-
-                    var firebaseStorage = new FirebaseStorage("wilspca.appspot.com");
-                    try
-                    {
-                        await firebaseStorage
-                            .Child(imagePath)
-                            .DeleteAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(new { message = $"Error deleting image: {ex.Message}, {imagePath}" });
-                    }
+                    await DeleteBlobAsync(animal.ImageUrl, _configuration);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { message = $"Error deleting image/video from Blob Storage: {ex.Message}" });
                 }
 
-                // Delete the document from Firestore
-                await docref.DeleteAsync();
+                _context.Animals.Remove(animal);
+                await _context.SaveChangesAsync();
                 return Ok(new { message = "Animal and associated image deleted" });
             }
             else
@@ -124,51 +113,149 @@ namespace SPCAAPI.Controllers
             }
         }
         [HttpPatch]
-        public async Task<IActionResult> Patch(string id, [FromForm] Animal animal)
+        public async Task<IActionResult> Patch(int id, [FromForm] Animal animal, IFormFile file)
         {
-            DocumentReference docRef = db.Collection("Animals").Document(id);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            var foundAnimal = _context.Animals.Where(x => x.AnimalId == id).FirstOrDefault();
 
-            if (!snapshot.Exists)
+            if (foundAnimal == null)
             {
                 return NotFound(new { message = "Animal not found" });
             }
 
-            Dictionary<string, object> updates = new Dictionary<string, object>();
+            if (file != null && file.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(foundAnimal.ImageUrl))
+                {
+                    try
+                    {
+                        await DeleteBlobAsync(foundAnimal.ImageUrl, _configuration);
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(new { message = $"Error deleting old image: {ex.Message}" });
+                    }
+                }
+                try
+                {
+                    var newImageUrl = await UploadFileToBlobAsync(file, "animals", _configuration);
+                    foundAnimal.ImageUrl = newImageUrl;
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { message = $"Error uploading new image: {ex.Message}" });
+                }
+            }
 
             if (!string.IsNullOrEmpty(animal.Name))
             {
-                updates["name"] = animal.Name;
+                foundAnimal.Name = animal.Name;
             }
             if (!string.IsNullOrEmpty(animal.Breed))
             {
-                updates["breed"] = animal.Breed;
+                foundAnimal.Breed = animal.Breed;
             }
             if (!string.IsNullOrEmpty(animal.Health))
             {
-                updates["health"] = animal.Health;
+                foundAnimal.Health = animal.Health;
             }
             if (animal.Weight == 0)
             {
-                updates["weight"] = animal.Weight;
+                foundAnimal.Weight = animal.Weight;
             }
             if (!string.IsNullOrEmpty(animal.AnimalType))
             {
-                updates["animalType"] = animal.AnimalType;
+                foundAnimal.AnimalType = animal.AnimalType;
             }
             if (!string.IsNullOrEmpty(animal.AdoptionStatus))
             {
-                updates["adoptionStatus"] = animal.AdoptionStatus;
+                foundAnimal.AdoptionStatus = animal.AdoptionStatus;
             }
-            
 
-            if (updates.Count > 0)
+            if (foundAnimal != animal)
             {
-                await docRef.UpdateAsync(updates);
-                return Ok(new { message = "Animal updated", updates });
+                _context.Animals.Update(foundAnimal);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Animal updated", foundAnimal });
             }
 
             return BadRequest(new { message = "No updates provided" });
+        }
+
+        private async Task<string> UploadFileToBlobAsync(IFormFile file, string containerName, IConfiguration configuration)
+        {
+            // Upload a blob with .NET
+            // source = https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-upload
+            // used to understand more about how to upload file to blob storage. also applied knowledge from 2nd year.
+
+            var connectionString = configuration.GetValue<string>("ConnectionStrings:StorageConnectionString");
+
+            var blobServiceClient = new BlobServiceClient(connectionString);
+
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            await blobContainerClient.CreateIfNotExistsAsync();
+
+            // Azure blob storage - auto generate unique blob name
+            // link = https://stackoverflow.com/questions/14319340/azure-blob-storage-auto-generate-unique-blob-name
+            // author = Sandrino Di Mattia
+            // author link = https://stackoverflow.com/users/384546/sandrino-di-mattia
+            // learned how to make unique names with GUID
+
+            var blobName = $"{Guid.NewGuid()}-{file.FileName}";
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+            using (var stream = file.OpenReadStream())
+            {
+                await blobClient.UploadAsync(stream);
+            }
+
+            return blobClient.Uri.ToString();
+        }
+        private async Task DeleteBlobAsync(string blobUrl, IConfiguration configuration)
+        {
+            try
+            {
+                var connectionString = configuration.GetValue<string>("ConnectionStrings:StorageConnectionString");
+
+                Uri uri = new Uri(blobUrl);
+
+                // Get last path from URL
+                // link = https://stackoverflow.com/questions/54968854/get-last-path-from-url
+                // author = YosiFZ
+                // author link = https://stackoverflow.com/users/679099/yosifz
+                // learned how to get the name of the blob from the last part of the uri
+
+                string blobName = uri.Segments.Last();
+                string containerName = "animals";
+
+                // get rid of escape characters from uri blob name
+                // link = https://stackoverflow.com/questions/239567/decode-escaped-url-without-using-httputility-urldecode
+                // author = Igal Tabachnik
+                // author link = https://stackoverflow.com/users/8205/igal-tabachnik
+                // learned how to get rid of escape characters from uri blob name
+
+                blobName = Uri.UnescapeDataString(blobName);
+
+                var blobServiceClient = new BlobServiceClient(connectionString);
+
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+                var exists = await blobClient.ExistsAsync();
+                if (exists)
+                {
+                    await blobClient.DeleteIfExistsAsync();
+                    Console.WriteLine($"Blob {blobName} deleted successfully.");
+                }
+                else
+                {
+                    Console.WriteLine($"Blob {blobName} not found for deletion.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting blob: {ex.Message}");
+                throw; 
+            }
         }
     }
 }
