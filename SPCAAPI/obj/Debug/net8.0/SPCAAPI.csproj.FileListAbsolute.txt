@@ -203,3 +203,4 @@ C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Azure.Storage.Queues.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Microsoft.Extensions.Azure.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\System.IO.Hashing.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

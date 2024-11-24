@@ -5,6 +5,15 @@ using SPCAAPI.Data;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
+using System.Runtime.Intrinsics.Arm;
+using System.Security.Cryptography;
+using Aes = System.Security.Cryptography.Aes;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace SPCAAPI.Controllers
 {
@@ -65,14 +74,14 @@ namespace SPCAAPI.Controllers
 
             if (user != null)
             {
-
                 string storedHashedPassword = user.Password;
                 if (BCrypt.Net.BCrypt.Verify(password, storedHashedPassword))
                 {
                     User userInfo = new User();
-                    userInfo.UserEmail = email;
+                    userInfo.UserEmail = user.UserEmail;
                     userInfo.UserType = user.UserType;
-                    return Ok(userInfo);
+                    var token = GenerateJwtToken(userInfo);
+                    return Ok(new {token});
                 }
                 else
                 {
@@ -133,6 +142,7 @@ namespace SPCAAPI.Controllers
         [HttpGet("GetInfo/{email}")]
         public async Task<IActionResult> GetInfo(string email)
         {
+
             var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
 
             if (user != null)
@@ -306,5 +316,32 @@ namespace SPCAAPI.Controllers
                 throw;
             }
         }
+        private string GenerateJwtToken(User user)
+        {
+            // Adding JWT Authentication & Authorization in ASP.NET Core
+            // link = https://www.youtube.com/watch?v=mgeuh8k3I4g&t=306s
+            // author = Nick Chapsas
+            // learned how to use jwts in c#
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserEmail),
+                new Claim("UserType", user.UserType),
+                new Claim("UserEmail", user.UserEmail),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-very-secure-key-ThisIsTheSPCAKeyDontTellAnyOne"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "SPCA",
+                audience: "SPCA",
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
     }
 }

@@ -6,9 +6,11 @@ using SPCAAPI.Data;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SPCAAPI.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("api/Animal")]
     [ApiController]
     public class AnimalController : Controller
