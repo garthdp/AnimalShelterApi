@@ -81,6 +81,12 @@ namespace SPCAAPI.Controllers
                     userInfo.UserEmail = user.UserEmail;
                     userInfo.UserType = user.UserType;
                     var token = GenerateJwtToken(userInfo);
+
+                    // Can I create a cookie in a globally available static class?
+                    // link = https://stackoverflow.com/questions/61584922/can-i-create-a-cookie-in-a-globally-available-static-class
+                    // author = Mertuarez
+                    // author link = https://stackoverflow.com/users/1071165/mertuarez
+                    // learned how to make a cookie with certain options
                     var cookieOptions = new CookieOptions
                     {
                         HttpOnly = true,
