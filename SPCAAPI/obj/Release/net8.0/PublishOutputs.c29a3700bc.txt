@@ -34,6 +34,7 @@ C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Release\n
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Release\net8.0\PubTmp\Out\Grpc.Core.Api.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Release\net8.0\PubTmp\Out\Grpc.Net.Client.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Release\net8.0\PubTmp\Out\Grpc.Net.Common.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Release\net8.0\PubTmp\Out\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Release\net8.0\PubTmp\Out\Microsoft.Data.SqlClient.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\obj\Release\net8.0\PubTmp\Out\Microsoft.EntityFrameworkCore.dll

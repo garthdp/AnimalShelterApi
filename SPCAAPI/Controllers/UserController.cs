@@ -81,6 +81,16 @@ namespace SPCAAPI.Controllers
                     userInfo.UserEmail = user.UserEmail;
                     userInfo.UserType = user.UserType;
                     var token = GenerateJwtToken(userInfo);
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddHours(8)
+                    };
+
+                    Response.Cookies.Append("AuthToken", token, cookieOptions);
+
                     return Ok(new {token});
                 }
                 else

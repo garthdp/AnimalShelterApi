@@ -23,7 +23,7 @@ namespace SPCAAPI
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x=>
             {
-                x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = config["JwtSettings:Issuer"],
                     ValidAudience = config["JwtSettings:Audience"],
@@ -40,7 +40,7 @@ namespace SPCAAPI
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
-                               builder => builder.AllowAnyOrigin()  
+                               builder => builder.WithOrigins("https://wilwebapp.azurewebsites.net")
                               .AllowAnyMethod()  
                               .AllowAnyHeader());
             });
@@ -54,10 +54,6 @@ namespace SPCAAPI
             var app = builder.Build();
 
             app.UseCors("AllowAll");
-
-            app.UseDeveloperExceptionPage();
-            app.UseSwagger();
-            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 

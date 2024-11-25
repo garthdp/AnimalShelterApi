@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace SPCAAPI.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [Route("api/Animal")]
     [ApiController]
     public class AnimalController : Controller
@@ -34,13 +33,6 @@ namespace SPCAAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] RecieveAnimal animal)
         {
-            /*
-            Code Attribution
-            Title: C# Firebase Tutorial | Firebase Storage Upload Files in .NET Core Web API
-            Author: Programming Guru
-            Link: https://www.youtube.com/watch?v=nh17WlHtODs
-            Usage: Used to understand how to upload files to Firebase Storage using .NET Core
-            */
 
             if (animal.file == null || animal.file.Length == 0)
             {
@@ -71,7 +63,7 @@ namespace SPCAAPI.Controllers
                 return StatusCode(500, new { message = "Error uploading file", error = ex.Message });
             }
         }
-
+        [AllowAnonymous]
         [HttpGet("GetAnimals")]
         public async Task<IActionResult> GetAnimals()
         {

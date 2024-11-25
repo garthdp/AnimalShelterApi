@@ -64,7 +64,6 @@ namespace SPCAAPI.Controllers
             return Ok(reports);
         }
 
-        // Method to delete a report from Firestore
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
