@@ -10,6 +10,13 @@ namespace ApiTesting
 {
     public class MockDbSet<T> : Mock<DbSet<T>> where T : class
     {
+        /*
+        Code Attribution
+        Title: NSubstitute DbSet / IQueryable<T>
+        Author: s.meijer
+        Link: https://stackoverflow.com/questions/21069986/nsubstitute-dbset-iqueryablet
+        Usage: Used to understand make a general purpose mock dbset
+        */
         public MockDbSet(IQueryable<T> data)
         {
             As<IQueryable<T>>().Setup(m => m.Provider).Returns(data.Provider);
