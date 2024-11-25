@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using AutoFixture;
 
 namespace ApiTesting
 {
@@ -29,20 +30,18 @@ namespace ApiTesting
         */
 
         private readonly Mock<WilDbContext> _mockContext;
+        private Fixture _fixture;
 
         public EventsControllerTest()
         {
+            _fixture = new Fixture();
             _mockContext = new Mock<WilDbContext>();
         }
 
         [Fact]
         public async Task GetEvents_ShouldReturnOkResult()
         {
-            var events = new List<Event>
-            {
-                new Event { EventId = 1, EventName = "Event 1", EventDescription = "Description 1", EventDate = "2024-12-01" },
-                new Event { EventId = 2, EventName = "Event 2", EventDescription = "Description 2", EventDate = "2024-12-02" }
-            }.AsQueryable();
+            var events = _fixture.CreateMany<Event>(2).AsQueryable();
 
             var mockDbSet = new MockDbSet<Event>(events);
             _mockContext.Setup(c => c.Events).Returns(mockDbSet.Object);

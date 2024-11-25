@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using AutoFixture;
 
 namespace ApiTesting
 {
@@ -29,20 +30,18 @@ namespace ApiTesting
         */
 
         private readonly Mock<WilDbContext> _mockContext;
+        private Fixture _fixture;
 
         public VolunteerControllerTest()
         {
+            _fixture = new Fixture();
             _mockContext = new Mock<WilDbContext>();
         }
 
         [Fact]
         public async Task GetVolunteers_ShouldReturnOkResult()
         {
-            var volunteers = new List<Volunteer>
-            {
-                new Volunteer { VolunteerId = 1, Name = "John", Surname = "Doe", VolunteerDate = "2024-11-25", PhoneNumber = "1234567890", Email = "john.doe@example.com" },
-                new Volunteer { VolunteerId = 2, Name = "Jane", Surname = "Doe", VolunteerDate = "2024-11-26", PhoneNumber = "0987654321", Email = "jane.doe@example.com" }
-            }.AsQueryable();
+            var volunteers = _fixture.CreateMany<Volunteer>(2).AsQueryable();
 
             var mockDbSet = new MockDbSet<Volunteer>(volunteers);
             _mockContext.Setup(c => c.Volunteers).Returns(mockDbSet.Object);

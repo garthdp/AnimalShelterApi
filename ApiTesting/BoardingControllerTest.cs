@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using AutoFixture;
 
 namespace ApiTesting
 {
@@ -29,22 +30,21 @@ namespace ApiTesting
         */
 
         private readonly Mock<WilDbContext> _mockContext;
+        private Fixture _fixture;
 
         public BoardingControllerTest()
         {
+            _fixture = new Fixture();
             _mockContext = new Mock<WilDbContext>();
         }
 
         [Fact]
         public async Task GetBoardingRequests_ShouldReturnOkResult()
         {
-            var boardingRequests = new List<BoardingRequest>
-            {
-                new BoardingRequest { BoardingId = 1, Breed = "Breed 1", EndDate = "2024-12-01", OwnerName = "John Doe", OwnerEmail = "john@example.com", PetName = "Pet 1", StartDate = "2024-11-25" },
-                new BoardingRequest { BoardingId = 2, Breed = "Breed 2", EndDate = "2024-12-02", OwnerName = "Jane Doe", OwnerEmail = "jane@example.com", PetName = "Pet 2", StartDate = "2024-11-26" }
-            }.AsQueryable();
 
-            var mockDbSet = new MockDbSet<BoardingRequest>(boardingRequests);
+            var boardings = _fixture.CreateMany<BoardingRequest>(2).AsQueryable();
+
+            var mockDbSet = new MockDbSet<BoardingRequest>(boardings);
             _mockContext.Setup(c => c.BoardingRequests).Returns(mockDbSet.Object);
 
             var controller = new BoardingController(_mockContext.Object);

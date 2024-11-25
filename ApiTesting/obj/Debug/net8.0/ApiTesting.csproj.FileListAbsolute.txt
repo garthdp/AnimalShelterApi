@@ -203,3 +203,5 @@ C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\ApiTesting\bin\Debug\
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\ApiTesting\bin\Debug\net8.0\Moq.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\ApiTesting\bin\Debug\net8.0\System.IO.Hashing.dll
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\ApiTesting\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\ApiTesting\bin\Debug\net8.0\AutoFixture.dll
+C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\ApiTesting\bin\Debug\net8.0\Fare.dll
