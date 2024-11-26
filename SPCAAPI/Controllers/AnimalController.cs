@@ -21,10 +21,6 @@ namespace SPCAAPI.Controllers
             _context = context;
             _configuration = configuration;
         }
-        public AnimalController(WilDbContext context)
-        {
-            _context = context;
-        }
         // posts an animal to the database
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] RecieveAnimal animal)

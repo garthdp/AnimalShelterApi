@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using SPCAAPI.Controllers;
 using SPCAAPI.Data;
@@ -30,12 +31,14 @@ namespace ApiTesting
         */
 
         private readonly Mock<WilDbContext> _mockContext;
+        private readonly Mock<Microsoft.Extensions.Configuration.IConfiguration> _mockConfiguration;
         private Fixture _fixture;
 
         public UserContollerTest()
         {
             _fixture = new Fixture();
             _mockContext = new Mock<WilDbContext>();
+            _mockConfiguration = new Mock<IConfiguration>();
         }
 
         // tests to see if it can get users the users information
@@ -47,7 +50,7 @@ namespace ApiTesting
             var mockDbSet = new MockDbSet<User>(users);
             _mockContext.Setup(c => c.Users).Returns(mockDbSet.Object);
 
-            var controller = new UserController(_mockContext.Object);
+            var controller = new UserController(_mockContext.Object, _mockConfiguration.Object);
 
             var result = await controller.GetInfo(users.First().UserEmail) as OkObjectResult;
 
@@ -85,8 +88,9 @@ namespace ApiTesting
             var users = new List<User> { userOld }.AsQueryable();
             var mockDbSet = new MockDbSet<User>(users);
             _mockContext.Setup(c => c.Users).Returns(mockDbSet.Object);
+            _mockConfiguration.Setup(c => c["ConnectionStrings:StorageConnectionString"]).Returns("SomeValue");
 
-            var controller = new UserController(_mockContext.Object);
+            var controller = new UserController(_mockContext.Object, _mockConfiguration.Object);
 
             var result = await controller.Patch(userNew.UserEmail, userNew) as OkObjectResult;
 
@@ -113,8 +117,9 @@ namespace ApiTesting
             var users = new List<User>().AsQueryable();
             var mockDbSet = new MockDbSet<User>(users);
             _mockContext.Setup(c => c.Users).Returns(mockDbSet.Object);
+            _mockConfiguration.Setup(c => c["ConnectionStrings:StorageConnectionString"]).Returns("SomeValue");
 
-            var controller = new UserController(_mockContext.Object);
+            var controller = new UserController(_mockContext.Object, _mockConfiguration.Object);
 
             var result = await controller.Register(user) as OkObjectResult;
 

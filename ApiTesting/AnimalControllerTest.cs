@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using SPCAAPI.Controllers;
 using SPCAAPI.Data;
@@ -30,13 +31,18 @@ namespace ApiTesting
         */
 
         private readonly Mock<WilDbContext> _mockContext;
+        private readonly Mock<IConfiguration> _mockConfiguration;
         private Fixture _fixture;
 
         public AnimalControllerTest()
         {
             _fixture = new Fixture();
             _mockContext = new Mock<WilDbContext>();
+            _mockConfiguration = new Mock<IConfiguration>();
         }
+
+        public Mock<IConfiguration> MockConfiguration => _mockConfiguration;
+
         // tests to see if it can get animals and the correct amount of animals
         [Fact]
         public async Task GetAnimals_ShouldReturnOkResult()
@@ -46,7 +52,7 @@ namespace ApiTesting
             var mockDbSet = new MockDbSet<Animal>(animals);
             _mockContext.Setup(c => c.Animals).Returns(mockDbSet.Object);
 
-            var controller = new AnimalController(_mockContext.Object);
+            var controller = new AnimalController(_mockContext.Object, MockConfiguration.Object);
 
             var result = await controller.GetAnimals() as OkObjectResult;
 
