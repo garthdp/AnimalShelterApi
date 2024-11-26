@@ -44,7 +44,7 @@
       },
       {
         "Name": "Weight",
-        "Type": "System.Int32",
+        "Type": "System.String",
         "IsRequired": false
       },
       {
@@ -121,7 +121,7 @@
       },
       {
         "Name": "Weight",
-        "Type": "System.Int32",
+        "Type": "System.String",
         "IsRequired": false
       },
       {
@@ -444,7 +444,39 @@
   },
   {
     "ContainingType": "SPCAAPI.Controllers.UserController",
-    "Method": "DeleteEvent",
+    "Method": "CheckAdminAccess",
+    "RelativePath": "api/User/CheckAdminAccess/{email}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SPCAAPI.Controllers.UserController",
+    "Method": "CheckUserAccess",
+    "RelativePath": "api/User/CheckUserAccess/{email}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SPCAAPI.Controllers.UserController",
+    "Method": "DeleteUser",
     "RelativePath": "api/User/DeleteUser/{email}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -608,6 +640,11 @@
         "Name": "ProfilePicture",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "file",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -641,7 +678,7 @@
         "IsRequired": false
       },
       {
-        "Name": "VounteerDate",
+        "Name": "VolunteerDate",
         "Type": "System.String",
         "IsRequired": false
       },
@@ -713,7 +750,7 @@
         "IsRequired": false
       },
       {
-        "Name": "VounteerDate",
+        "Name": "VolunteerDate",
         "Type": "System.String",
         "IsRequired": false
       },

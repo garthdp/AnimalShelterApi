@@ -40,9 +40,9 @@ namespace SPCAAPI
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
-                               builder => builder.WithOrigins("https://wilwebapp.azurewebsites.net")
-                              .AllowAnyMethod()  
-                              .AllowAnyHeader());
+                    builder => builder.WithOrigins("https://wilwebapp.azurewebsites.net", "https://localhost:7266/")
+                    .AllowAnyMethod()  
+                    .AllowAnyHeader());
             });
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

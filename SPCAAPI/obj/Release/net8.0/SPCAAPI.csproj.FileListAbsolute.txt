@@ -1,7 +1,6 @@
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\appsettings.Development.json
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\appsettings.json
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\SPCAAPI.exe
-C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\wilspca.json
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\SPCAAPI.deps.json
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\SPCAAPI.runtimeconfig.json
 C:\Users\User\OneDrive - ADvTECH Ltd\Year 3\Semester 2\wil\SPCAAPI\bin\Release\net8.0\SPCAAPI.dll
