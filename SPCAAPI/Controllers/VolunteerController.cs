@@ -26,7 +26,7 @@ namespace SPCAAPI.Controllers
                 }
 
                 _context.Volunteers.Add(volunteer);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Volunteer added successfully" });
             }
@@ -68,7 +68,7 @@ namespace SPCAAPI.Controllers
                 vol.Email = volunteer.Email;
 
                 _context.Update(vol);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Volunteer updated successfully" });
             }
@@ -91,7 +91,7 @@ namespace SPCAAPI.Controllers
                 }
 
                 _context.Volunteers.Remove(vol);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Volunteer deleted successfully" });
             }

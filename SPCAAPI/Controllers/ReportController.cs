@@ -28,7 +28,7 @@ namespace SPCAAPI.Controllers
                 }
 
                 _context.Reports.Add(report);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Report submitted successfully"});
             }
@@ -74,7 +74,7 @@ namespace SPCAAPI.Controllers
             if (report != null)
             {
                 _context.Reports.Remove(report);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok(new { message = "Report deleted" });
             }
             else

@@ -195,7 +195,7 @@ namespace SPCAAPI.Controllers
                 }
 
                 _context.Users.Remove(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok(new { message = "User deleted successfully" });
             }
             catch (Exception ex)
@@ -262,7 +262,7 @@ namespace SPCAAPI.Controllers
             }
 
             _context.Users.Update(foundUser);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok(new { message = "User updated", foundUser });
         }
         private async Task<string> UploadFileToBlobAsync(IFormFile file, string containerName, IConfiguration configuration)

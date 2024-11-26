@@ -36,7 +36,7 @@ namespace SPCAAPI.Controllers
                 addEvent.EventDescription = newEvent.eventDescription;
 
                 _context.Events.Add(addEvent);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Event added successfully" });
             }
@@ -94,7 +94,7 @@ namespace SPCAAPI.Controllers
                 ev.EventDescription = updatedEvent.eventDescription;
                 ev.EventName = updatedEvent.eventName;
                 _context.Events.Update(ev);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Event updated successfully" });
             }
@@ -118,7 +118,7 @@ namespace SPCAAPI.Controllers
                 }
 
                 _context.Events.Remove(ev);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Event deleted successfully" });
             }
