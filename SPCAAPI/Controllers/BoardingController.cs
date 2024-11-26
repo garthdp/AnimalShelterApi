@@ -15,6 +15,7 @@ namespace SPCAAPI.Controllers
         {
             _context = context;
         }
+        // method to create new request
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] BoardingRequest boardingRequest)
         {
@@ -30,7 +31,7 @@ namespace SPCAAPI.Controllers
                 return StatusCode(500, new { message = $"Error processing the request: {ex.Message}" });
             }
         }
-
+        // method to get all boarding requests
         [HttpGet("GetBoardingRequests")]
         public async Task<IActionResult> GetBoardingRequests()
         {
@@ -44,6 +45,7 @@ namespace SPCAAPI.Controllers
             return Ok(requests);
         }
 
+        // method to delete users
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -66,6 +68,8 @@ namespace SPCAAPI.Controllers
                 return StatusCode(500, new { message = $"Error deleting boarding request: {ex.Message}" });
             }
         }
+
+        // method to update boarding request
         [HttpPut("UpdateBoarding/{id}")]
         public async Task<IActionResult> UpdateBoarding(int id, [FromForm] BoardingRequest updatedRequest)
         {

@@ -38,6 +38,7 @@ namespace ApiTesting
             _mockContext = new Mock<WilDbContext>();
         }
 
+        // test to see if it can get the events and the correct number of events
         [Fact]
         public async Task GetEvents_ShouldReturnOkResult()
         {
@@ -56,6 +57,8 @@ namespace ApiTesting
             Assert.NotNull(returnedEvents);
             Assert.Equal(2, returnedEvents.Count);
         }
+
+        // tests to see if it can update the event
         [Fact]
         public async Task UpdateEvent_ShouldReturnOkResult()
         {
@@ -75,6 +78,7 @@ namespace ApiTesting
             Assert.Equal(200, result.StatusCode);
         }
 
+        // tests to see if it can delete the event
         [Fact]
         public async Task DeleteEvent_ShouldReturnOkResult()
         {

@@ -38,6 +38,7 @@ namespace ApiTesting
             _mockContext = new Mock<WilDbContext>();
         }
 
+        // tests to see if it can get volunteers and the correct number of volunteers
         [Fact]
         public async Task GetVolunteers_ShouldReturnOkResult()
         {
@@ -57,6 +58,7 @@ namespace ApiTesting
             Assert.Equal(2, returnedVolunteers.Count);
         }
 
+        // tests to see if it can add a volunteer and return an ok result
         [Fact]
         public async Task AddVolunteer_ShouldReturnOkResult()
         {
@@ -81,6 +83,7 @@ namespace ApiTesting
             Assert.Equal(200, result.StatusCode);
         }
 
+        // tests to see if it can update a volunteer
         [Fact]
         public async Task UpdateVolunteer_ShouldReturnOkResult()
         {
@@ -115,6 +118,7 @@ namespace ApiTesting
             Assert.Equal(200, result.StatusCode);
         }
 
+        // tests to see if it can delete a volunteer
         [Fact]
         public async Task DeleteVolunteer_ShouldReturnOkResult()
         {

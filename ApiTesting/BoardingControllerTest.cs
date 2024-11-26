@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using AutoFixture;
+using Microsoft.VisualStudio.TestPlatform;
 
 namespace ApiTesting
 {
@@ -38,6 +39,7 @@ namespace ApiTesting
             _mockContext = new Mock<WilDbContext>();
         }
 
+        // tests to see if it can get the boarding requests and the correct number of boarding requests
         [Fact]
         public async Task GetBoardingRequests_ShouldReturnOkResult()
         {
@@ -58,6 +60,7 @@ namespace ApiTesting
             Assert.Equal(2, returnedRequests.Count);
         }
 
+        // tests to see if it can update a boarding request 
         [Fact]
         public async Task UpdateBoarding_ShouldReturnOkResult()
         {
@@ -94,6 +97,7 @@ namespace ApiTesting
             Assert.Equal(200, result.StatusCode);
         }
 
+        // tests to see if it can delete a boarding request
         [Fact]
         public async Task DeleteBoarding_ShouldReturnOkResult()
         {
@@ -114,6 +118,7 @@ namespace ApiTesting
             Assert.Equal(200, result.StatusCode);
         }
 
+        // tests to see if it can post a new boarding request
         [Fact]
         public async Task PostBoardingRequest_ShouldReturnOkResult()
         {

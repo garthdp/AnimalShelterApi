@@ -28,6 +28,10 @@ namespace SPCAAPI.Controllers
             _context = context;
             _configuration = configuration;
         }
+        public UserController(WilDbContext context)
+        {
+            _context = context;
+        }
 
         // Method to register a user 
         [HttpPost("Register")]
@@ -46,6 +50,7 @@ namespace SPCAAPI.Controllers
                     return BadRequest(new { message = "Error, email in use." });
                 }
 
+                // hashes password
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
                 user.Password = hashedPassword;
@@ -75,11 +80,14 @@ namespace SPCAAPI.Controllers
             if (user != null)
             {
                 string storedHashedPassword = user.Password;
+                // checks if passwords match
                 if (BCrypt.Net.BCrypt.Verify(password, storedHashedPassword))
                 {
                     User userInfo = new User();
                     userInfo.UserEmail = user.UserEmail;
                     userInfo.UserType = user.UserType;
+
+                    // generates jwt token
                     var token = GenerateJwtToken(userInfo);
 
                     // Can I create a cookie in a globally available static class?
@@ -95,6 +103,7 @@ namespace SPCAAPI.Controllers
                         Expires = DateTime.UtcNow.AddHours(8)
                     };
 
+                    // sends cookie with token to client
                     Response.Cookies.Append("AuthToken", token, cookieOptions);
 
                     return Ok(new {token});
@@ -109,7 +118,7 @@ namespace SPCAAPI.Controllers
                 return NotFound(new { message = "Email or password incorrect"});
             }
         }
-        // Method to login
+        // Method to check admin access
         [HttpGet("CheckAdminAccess/{email}")]
         public async Task<IActionResult> CheckAdminAccess(string email)
         {
@@ -132,7 +141,7 @@ namespace SPCAAPI.Controllers
             }
         }
 
-        // Method to login
+        // Method to check user access
         [HttpGet("CheckUserAccess/{email}")]
         public async Task<IActionResult> CheckUserAccess(string email)
         {
@@ -154,7 +163,7 @@ namespace SPCAAPI.Controllers
                 return BadRequest(new { message = "Not logged in." });
             }
         }
-        // Method to login
+        // Method to user info
         [HttpGet("GetInfo/{email}")]
         public async Task<IActionResult> GetInfo(string email)
         {
@@ -174,7 +183,7 @@ namespace SPCAAPI.Controllers
 
         // Method to delete a user
         [HttpDelete("DeleteUser/{email}")]
-        public async Task<IActionResult> DeleteEvent(string email)
+        public async Task<IActionResult> DeleteUser(string email)
         {
             try
             {
@@ -194,6 +203,7 @@ namespace SPCAAPI.Controllers
                 return StatusCode(500, new { message = $"Error deleting user: {ex.Message}" });
             }
         }
+        // method to update user information
         [HttpPatch("Update/{email}")]
         public async Task<IActionResult> Patch(string email, [FromForm] RecieveUser user)
         {
@@ -210,6 +220,7 @@ namespace SPCAAPI.Controllers
                 {
                     try
                     {
+                        // deletes previous profile picture
                         await DeleteBlobAsync(user.ProfilePicture, _configuration);
                     }
                     catch (Exception ex)
@@ -219,6 +230,7 @@ namespace SPCAAPI.Controllers
                 }
                 try
                 {
+                    // uploads new image
                     var newImageUrl = await UploadFileToBlobAsync(user.file, "users", _configuration);
                     foundUser.ProfilePicture = newImageUrl;
                 }
@@ -332,6 +344,7 @@ namespace SPCAAPI.Controllers
                 throw;
             }
         }
+        // created jwt token
         private string GenerateJwtToken(User user)
         {
             // Adding JWT Authentication & Authorization in ASP.NET Core

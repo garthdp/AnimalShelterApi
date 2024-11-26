@@ -19,7 +19,7 @@ namespace SPCAAPI.Controllers
             _context = context;
         }
 
-        // Method to add a new event to Firestore
+        // Method to add a new event
         [HttpPost("AddEvent")]
         public async Task<IActionResult> AddEvent([FromForm] Events newEvent)
         {
@@ -61,7 +61,7 @@ namespace SPCAAPI.Controllers
             return Ok(FindEvents);
         }
 
-        // Method to get a specific event by ID from Firestore
+        // Method to get a specific event
         [HttpGet("GetEvent/{id}")]
         public async Task<IActionResult> GetEvent(int id)
         {

@@ -14,7 +14,6 @@ namespace SPCAAPI.Controllers
     [ApiController]
     public class AnimalController : Controller
     {
-        public static FirestoreDb db = establishCon();
         private readonly WilDbContext _context;
         private readonly IConfiguration _configuration;
         public AnimalController(WilDbContext context, IConfiguration configuration)
@@ -22,14 +21,11 @@ namespace SPCAAPI.Controllers
             _context = context;
             _configuration = configuration;
         }
-        public static FirestoreDb establishCon()
+        public AnimalController(WilDbContext context)
         {
-            string path = AppDomain.CurrentDomain.BaseDirectory + @"wilspca.json";
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
-
-            FirestoreDb db = FirestoreDb.Create("wilspca");
-            return db;
+            _context = context;
         }
+        // posts an animal to the database
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] RecieveAnimal animal)
         {
@@ -63,17 +59,11 @@ namespace SPCAAPI.Controllers
                 return StatusCode(500, new { message = "Error uploading file", error = ex.Message });
             }
         }
+        // gets animals from database
         [AllowAnonymous]
         [HttpGet("GetAnimals")]
         public async Task<IActionResult> GetAnimals()
         {
-            /*
-            Code Attribution
-            Title: C# Firestore Tutorial 3 | How to Retrieve Data | GET Data | English
-            Author: The Amazing Codeverse
-            Link: https://www.youtube.com/watch?v=SrRrxYBR3s0&list=PLrb70iTVZjZPEbhCh85VQIpRbQos2Qx3i&index=3
-            Usage: Used to get collection of data from Firestore database 
-            */
             var animals = _context.Animals.ToList();
 
             if (animals == null)
@@ -83,6 +73,7 @@ namespace SPCAAPI.Controllers
 
             return Ok(animals);
         }
+        // deletes an animal
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -92,6 +83,7 @@ namespace SPCAAPI.Controllers
             {
                 try
                 {
+                    // deletes associate animal image or video from blob storage
                     await DeleteBlobAsync(animal.ImageUrl, _configuration);
                 }
                 catch (Exception ex)
@@ -108,6 +100,7 @@ namespace SPCAAPI.Controllers
                 return NotFound(new { message = "Animal not found" });
             }
         }
+        // updates an animal
         [HttpPatch]
         public async Task<IActionResult> Patch(int id, [FromForm] RecieveAnimal animal)
         {
@@ -124,6 +117,7 @@ namespace SPCAAPI.Controllers
                 {
                     try
                     {
+                        // deletes previous image/video from blob storage
                         await DeleteBlobAsync(foundAnimal.ImageUrl, _configuration);
                     }
                     catch (Exception ex)
@@ -133,6 +127,7 @@ namespace SPCAAPI.Controllers
                 }
                 try
                 {
+                    // uploads new image/video to blob storage
                     var newImageUrl = await UploadFileToBlobAsync(animal.file, "animals", _configuration);
                     foundAnimal.ImageUrl = newImageUrl;
                 }
@@ -166,6 +161,7 @@ namespace SPCAAPI.Controllers
             {
                 foundAnimal.AdoptionStatus = animal.AdoptionStatus;
             }
+            // saves changes
             _context.Animals.Update(foundAnimal);
             await _context.SaveChangesAsync();
             return Ok(new { message = "Animal updated", foundAnimal });

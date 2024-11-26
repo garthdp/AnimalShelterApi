@@ -14,7 +14,7 @@ namespace SPCAAPI.Controllers
         {
             _context = context;
         }
-
+        // method to add volunteer
         [HttpPost("AddVolunteer")]
         public async Task<IActionResult> AddVolunteer([FromForm] Volunteer volunteer)
         {
@@ -35,6 +35,7 @@ namespace SPCAAPI.Controllers
                 return StatusCode(500, new { message = $"Error processing the request: {ex.Message}" });
             }
         }
+        // method to get volunteers
         [HttpGet("GetVolunteers")]
         public async Task<IActionResult> GetVolunteers()
         {

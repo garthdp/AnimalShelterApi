@@ -16,6 +16,7 @@ namespace SPCAAPI.Controllers
             _context = context;
         }
 
+        // Method to create a new report
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] Report report)
         {
@@ -37,7 +38,7 @@ namespace SPCAAPI.Controllers
             }
         }
 
-        // Method to get all reports from Firestore
+        // Method to get all reports
         [HttpGet("GetReports")]
         public async Task<IActionResult> GetReports()
         {
@@ -51,6 +52,7 @@ namespace SPCAAPI.Controllers
             return Ok(reports);
         }
 
+        // method to get user reports
         [HttpGet("UserReports/{email}")]
         public async Task<IActionResult> UserReports(string email)
         {
@@ -63,7 +65,7 @@ namespace SPCAAPI.Controllers
 
             return Ok(reports);
         }
-
+        // method to delete a report
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {

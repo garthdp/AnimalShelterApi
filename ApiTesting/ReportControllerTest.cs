@@ -37,6 +37,7 @@ namespace ApiTesting
             _mockContext = new Mock<WilDbContext>();
         }
 
+        // tests to see if it can get the reports and the correct number of reports 
         [Fact]
         public async Task GetReports_ShouldReturnOkResult()
         {
@@ -56,6 +57,7 @@ namespace ApiTesting
             Assert.Equal(2, returnedReports.Count);
         }
 
+        // tests to see if it can get the reports for a specific user
         [Fact]
         public async Task UserReports_ShouldReturnOkResult()
         {
@@ -80,6 +82,7 @@ namespace ApiTesting
             Assert.Equal(2, returnedReports.Count);
         }
 
+        // tests to see if it can delete report
         [Fact]
         public async Task DeleteReport_ShouldReturnOkResult()
         {
@@ -100,6 +103,7 @@ namespace ApiTesting
             Assert.Equal(200, result.StatusCode);
         }
 
+        // tests to see if it can make a report
         [Fact]
         public async Task PostReport_ShouldReturnOkResult()
         {
