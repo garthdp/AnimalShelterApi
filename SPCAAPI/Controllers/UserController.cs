@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 
 namespace SPCAAPI.Controllers
 {
@@ -91,6 +93,16 @@ namespace SPCAAPI.Controllers
                     // author = Mertuarez
                     // author link = https://stackoverflow.com/users/1071165/mertuarez
                     // learned how to make a cookie with certain options
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddHours(8)
+                    };
+
+                    // sends cookie with token to client
+                    Response.Cookies.Append("AuthToken", token, cookieOptions);
 
                     return Ok(new {token});
                 }
