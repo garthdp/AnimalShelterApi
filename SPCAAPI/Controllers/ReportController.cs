@@ -60,7 +60,7 @@ namespace SPCAAPI.Controllers
 
             if (reports == null || reports.Count == 0)
             {
-                return NotFound(new { message = "No reports found." });
+                return Ok(reports);
             }
 
             return Ok(reports);
